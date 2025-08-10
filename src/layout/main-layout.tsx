@@ -8,7 +8,14 @@ import {
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "./parts/app-sidebar";
 import { WindowDragger } from "./parts/window-dragger";
-import { useShortcut } from "@/hooks";
+import {
+  useShortcut,
+  useSidebarShortcut,
+  useThemeShortcut,
+  useToastShortcut,
+} from "@/hooks";
+import { shortcutRegistry } from "@/lib/shortcuts";
+import { HotKeyMapper } from "./hotkey-mapper";
 
 const MainLayout = () => {
   return (
@@ -20,9 +27,18 @@ const MainLayout = () => {
 
 const LayoutWrapper = () => {
   const { state } = useSidebar();
+  useSidebarShortcut();
+  useThemeShortcut();
+  useToastShortcut();
   useShortcut();
+
+  const shortcuts = shortcutRegistry.getShortcuts();
+
   return (
     <>
+      {shortcuts.map((shortcut) => (
+        <HotKeyMapper key={shortcut.key} shortcut={shortcut} />
+      ))}
       <AppSidebar />
       <SidebarInset>
         <main className="w-full">
