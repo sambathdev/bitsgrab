@@ -1,6 +1,8 @@
 use clipboard::ClipboardContext;
 use clipboard::ClipboardProvider;
 use std::time::Duration;
+use tauri::AppHandle;
+use tauri::Manager;
 use tauri::{Emitter, Window};
 
 pub fn play_hi_sound() {
@@ -8,7 +10,7 @@ pub fn play_hi_sound() {
 }
 
 #[tauri::command]
-pub fn start_clipboard_listener(window: Window) {
+pub fn start_clipboard_listener(app: AppHandle, window: Window) {
     tauri::async_runtime::spawn(async move {
         let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
         let mut last_clip = String::new();
@@ -16,13 +18,14 @@ pub fn start_clipboard_listener(window: Window) {
         loop {
             if let Ok(current) = ctx.get_contents() {
                 println!("Current clip board data: {}", current);
-                match window
-                    .emit("current-clipboard", current.clone())
-                    .map_err(|e| e.to_string())
-                {
-                    Ok(pushed) => {}
-                    Err(e) => {}
-                }
+                app.emit("current-clipboard", String::from("Hell")).unwrap();
+                // match window
+                //     .emit("current-clipboard", current.clone())
+                //     .map_err(|e| e.to_string())
+                // {
+                //     Ok(pushed) => {}
+                //     Err(e) => {}
+                // }
                 if current != last_clip {
                     if current.trim() == "Hi there" {
                         play_hi_sound();

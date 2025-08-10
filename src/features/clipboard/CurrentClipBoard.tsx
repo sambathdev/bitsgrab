@@ -9,6 +9,7 @@ const CurrentClipBoard = ({}: CurrentClipBoardProps) => {
   useEffect(() => {
     const unlisten = listen<string>("current-clipboard", (event) => {
       setCurrentClipBoard(event.payload);
+      console.log(4, event.payload);
     });
 
     return () => {

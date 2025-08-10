@@ -1,5 +1,5 @@
-pub mod constant;
 pub mod commonreq;
+pub mod constant;
 use crate::commonreq::greet;
 
 pub mod downloadimage;
@@ -7,7 +7,6 @@ use downloadimage::download_image;
 
 pub mod currentclipboard;
 use currentclipboard::start_clipboard_listener;
-
 
 #[tauri::command]
 fn enable_click_through(window: tauri::Window) {
@@ -26,7 +25,13 @@ pub fn run() {
             Ok(())
         })
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet, download_image, start_clipboard_listener, enable_click_through, disable_click_through])
+        .invoke_handler(tauri::generate_handler![
+            greet,
+            download_image,
+            start_clipboard_listener,
+            enable_click_through,
+            disable_click_through
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

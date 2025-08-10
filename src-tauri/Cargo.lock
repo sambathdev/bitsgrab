@@ -301,6 +301,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "bitsgrabber"
+version = "0.1.0"
+dependencies = [
+ "clipboard",
+ "reqwest 0.11.27",
+ "rodio",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-opener",
+ "tokio",
+]
+
+[[package]]
 name = "block"
 version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -417,21 +432,6 @@ dependencies = [
  "glib-sys",
  "libc",
  "system-deps",
-]
-
-[[package]]
-name = "cal"
-version = "0.1.0"
-dependencies = [
- "clipboard",
- "reqwest 0.11.27",
- "rodio",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "tauri-plugin-opener",
- "tokio",
 ]
 
 [[package]]

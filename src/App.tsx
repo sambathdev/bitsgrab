@@ -1,16 +1,27 @@
 import "./index.css";
-import CurrentClipBoard from "./features/clipboard/CurrentClipBoard";
-import DownloadImage from "./features/download-image/DownloadImage";
-import MainLayout from "./layout/MainLayout";
+import MainLayout from "./layout/main-layout";
+import { Routes, Route, BrowserRouter } from "react-router-dom";
+import Home from "./pages/home-dashboard";
+import Settings from "./pages/child/app-settings/page";
+import ClipboardApp from "./pages/child/clipboard-app";
+import { Providers } from "./providers";
+import ChildLayout from "./layout/child-layout";
 
 function App() {
   return (
-    <MainLayout>
-      <div>
-        <CurrentClipBoard />
-        <DownloadImage />
-      </div>
-    </MainLayout>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Providers />}>
+          <Route path="main" element={<MainLayout />}>
+            <Route index element={<Home />} />
+          </Route>
+          <Route path="child" element={<ChildLayout />}>
+            <Route path="settings" element={<Settings />} />
+            <Route path="clipboard" element={<ClipboardApp />} />
+          </Route>
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 

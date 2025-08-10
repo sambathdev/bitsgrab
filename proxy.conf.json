@@ -1,0 +1,12 @@
+{
+  "/api": {
+    "target": "http://localhost:3000",
+    "changeOrigin": true,
+    "secure": false
+  },
+  "/artboard": {
+    "target": "http://localhost:6173",
+    "changeOrigin": true,
+    "secure": false
+  }
+}
