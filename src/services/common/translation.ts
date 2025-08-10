@@ -1,8 +1,5 @@
-import type { Language } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-
 import { LANGUAGES_KEY } from "@/constants/query-keys";
-import { axios } from "@/lib/axios";
 
 export const fetchLanguages = async () => {
   // const response = await axios.get<Language[]>(`/translation/languages`);

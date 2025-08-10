@@ -2,7 +2,6 @@ use clipboard::ClipboardContext;
 use clipboard::ClipboardProvider;
 use std::time::Duration;
 use tauri::AppHandle;
-use tauri::Manager;
 use tauri::{Emitter, Window};
 
 pub fn play_hi_sound() {
@@ -10,7 +9,7 @@ pub fn play_hi_sound() {
 }
 
 #[tauri::command]
-pub fn start_clipboard_listener(app: AppHandle, window: Window) {
+pub fn start_clipboard_listener(app: AppHandle, _window: Window) {
     tauri::async_runtime::spawn(async move {
         let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
         let mut last_clip = String::new();

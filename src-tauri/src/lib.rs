@@ -21,7 +21,7 @@ fn disable_click_through(window: tauri::Window) {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .setup(|app| {
+        .setup(|_app| {
             Ok(())
         })
         .plugin(tauri_plugin_opener::init())

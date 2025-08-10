@@ -1,4 +1,4 @@
-import { ShortcutDefinition, ShortcutAction } from "@/constants/shortcuts";
+import { ShortcutDefinition } from "@/constants/shortcuts";
 
 class ShortcutRegistry {
   private shortcuts = new Map<string, ShortcutDefinition>();

@@ -44,7 +44,7 @@ const axiosForRefresh = _axios.create({
   withCredentials: true,
 });
 
- const refreshToken = async (axios: AxiosInstance) => {
+ const refreshToken = async (_axios: AxiosInstance) => {
   return false;
 };
 

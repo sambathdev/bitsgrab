@@ -4,6 +4,7 @@ import path from "path";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { lingui } from "@lingui/vite-plugin";
+import checker from "vite-plugin-checker";
 
 const host = process.env.TAURI_DEV_HOST;
 
@@ -21,6 +22,9 @@ export default defineConfig(async () => ({
     }),
     tailwindcss(),
     lingui(),
+    checker({
+      typescript: true, // enable real-time TS checking
+    }),
   ],
   resolve: {
     alias: {

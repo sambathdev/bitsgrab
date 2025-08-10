@@ -1,6 +1,5 @@
-import { PropsWithChildren } from "react";
 import { useLogin } from "@/services/auth";
-import ClipboardApp from "./child/clipboard-app";
+import ClipboardApp from "./child/clipboard-app/page";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { customToast } from "@/components/ui/toast";
@@ -10,18 +9,10 @@ import { t } from "@lingui/core/macro";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { WINDOW_CONFIGS, WINDOW_LABEL } from "@/constants";
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { fixGrammar } from "@/services/agent-ai";
-interface MainLayoutProps extends PropsWithChildren {}
 
 const Home = () => {
-  const { login, loading } = useLogin();
+  const { login } = useLogin();
   return (
     <div>
       <div>
