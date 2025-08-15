@@ -4,10 +4,10 @@ import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-  useSidebar,
+  // useSidebar,
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "./parts/app-sidebar";
-import { WindowDragger } from "./parts/window-dragger";
+// import { WindowDragger } from "./parts/window-dragger";
 import {
   useShortcut,
   useSidebarShortcut,
@@ -26,7 +26,7 @@ const MainLayout = () => {
 };
 
 const LayoutWrapper = () => {
-  const { state } = useSidebar();
+  // const { state } = useSidebar();
   useSidebarShortcut();
   useThemeShortcut();
   useToastShortcut();
@@ -42,9 +42,10 @@ const LayoutWrapper = () => {
       <AppSidebar />
       <SidebarInset>
         <main className="w-full">
-          {state == "collapsed" ? "collapsed" : "expand"}
-          <WindowDragger />
-          <SidebarTrigger />
+          {/* <WindowDragger /> */}
+          <div className="flex h-[28px] items-center" data-tauri-drag-region>
+            <SidebarTrigger />
+          </div>
           <Outlet />
         </main>
       </SidebarInset>

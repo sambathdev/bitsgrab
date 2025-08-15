@@ -4,9 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { customToast } from "@/components/ui/toast";
 import { toast } from "sonner";
-import { LocaleSwitch } from "@/components/locale-switch";
 import { t } from "@lingui/core/macro";
-import { ThemeSwitch } from "@/components/theme-switch";
 import { WINDOW_CONFIGS, WINDOW_LABEL } from "@/constants";
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { fixGrammar } from "@/services/agent-ai";
@@ -44,8 +42,6 @@ const Home = () => {
           Button
         </Button>
         <Checkbox />
-        <LocaleSwitch />
-        <ThemeSwitch />
         <ClipboardApp />
         <div>
           Side bar

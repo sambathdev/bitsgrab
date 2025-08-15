@@ -14,6 +14,7 @@ function App() {
         <Route path="/" element={<Providers />}>
           <Route path="main" element={<MainLayout />}>
             <Route index element={<Home />} />
+            <Route path="test" element={<div>Test</div>} />
           </Route>
           <Route path="child" element={<ChildLayout />}>
             <Route path="settings" element={<Settings />} />

@@ -1,12 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {
-  BookOpen,
-  Bot,
-  Settings2,
-  SquareTerminal,
-} from "lucide-react";
+import { BookOpen, Bot, Settings2, SquareTerminal } from "lucide-react";
 
 import { NavMain } from "./nav-main";
 import {
@@ -19,6 +14,10 @@ import {
 } from "@/components/ui/sidebar";
 import { WINDOW_CONFIGS, WINDOW_LABEL } from "@/constants";
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
+import { LocaleSwitch } from "@/components/locale-switch";
+import { ThemeSwitch } from "@/components/theme-switch";
+import { Link } from "react-router-dom";
+import { handleClickDisableNewTab } from "@/lib/utils";
 
 // const teams = [
 //   {
@@ -168,14 +167,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-default"
           data-tauri-drag-region
         >
-          <span className="font-bold px-1 text-xl" data-tauri-drag-region>BITS GRABBER</span>
+          <span className="font-bold px-1 text-xl" data-tauri-drag-region>
+            BITS GRABBER
+          </span>
         </SidebarMenuButton>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navMain} />
         {/* <NavProjects projects={projects} /> */}
       </SidebarContent>
-      <SidebarFooter>{/* <NavUser user={user} /> */}</SidebarFooter>
+      <SidebarFooter>
+        {/* <NavUser user={user} /> */}
+        <div className="flex items-center">
+          <Link to="/main/test" onClick={handleClickDisableNewTab}>Test</Link>
+          <Link to="/main" onClick={handleClickDisableNewTab}>Home</Link>
+          <LocaleSwitch />
+          <ThemeSwitch />
+        </div>
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );
