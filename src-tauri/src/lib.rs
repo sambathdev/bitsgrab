@@ -1,36 +1,32 @@
-pub mod commonreq;
 pub mod constant;
+
+pub mod commonreq;
 use crate::commonreq::greet;
 
 pub mod downloadimage;
-use downloadimage::download_image;
+use crate::downloadimage::download_image;
 
 pub mod currentclipboard;
-use currentclipboard::start_clipboard_listener;
+use crate::currentclipboard::start_clipboard_listener;
 
-#[tauri::command]
-fn enable_click_through(window: tauri::Window) {
-    window.set_ignore_cursor_events(true).unwrap();
-}
+pub mod window_config;
+use crate::window_config::{disable_click_through, enable_click_through};
 
-#[tauri::command]
-fn disable_click_through(window: tauri::Window) {
-    window.set_ignore_cursor_events(false).unwrap();
-}
+pub mod yt_dlp_processing;
+use crate::yt_dlp_processing::get_youtube_video_meta_datas;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .setup(|_app| {
-            Ok(())
-        })
+        .setup(|_app| Ok(()))
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             greet,
             download_image,
             start_clipboard_listener,
             enable_click_through,
-            disable_click_through
+            disable_click_through,
+            get_youtube_video_meta_datas
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -8,11 +8,29 @@ import { t } from "@lingui/core/macro";
 import { WINDOW_CONFIGS, WINDOW_LABEL } from "@/constants";
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { fixGrammar } from "@/services/agent-ai";
+import { invoke } from "@tauri-apps/api/core";
+import InvokeInput from "./InvokeInput";
 
 const Home = () => {
   const { login } = useLogin();
   return (
     <div>
+      <InvokeInput
+        onSubmit={async (data: any) => {
+          const gg = await invoke("get_youtube_video_meta_datas");
+          console.log(55, gg);
+        }}
+      />
+
+      <button
+        onClick={async () => {
+          await invoke("greet");
+        }}
+      >
+        Install
+      </button>
+      <hr />
+
       <div>
         Home
         <button
@@ -26,8 +44,7 @@ const Home = () => {
           onClick={() => {
             const id = customToast({
               title: "This is a headless toast",
-              description:
-                "You have full control of styles and jsx, while still having the animations.",
+              description: "You have full control of styles and jsx, while still having the animations.",
               buttonOk: {
                 label: "Reply",
                 onClick: () => toast.dismiss(id),
@@ -47,10 +64,7 @@ const Home = () => {
           Side bar
           <Button
             onClick={() => {
-              const settingWindow = new WebviewWindow(
-                WINDOW_LABEL.CLIPBOARD,
-                WINDOW_CONFIGS[WINDOW_LABEL.CLIPBOARD]
-              );
+              const settingWindow = new WebviewWindow(WINDOW_LABEL.CLIPBOARD, WINDOW_CONFIGS[WINDOW_LABEL.CLIPBOARD]);
               settingWindow.once("tauri://created", async function () {
                 // do the initial action pass from current window
               });
@@ -59,9 +73,7 @@ const Home = () => {
             New Win
           </Button>
         </div>
-        <div>
-          {t`Here, you can update your profile to customize and personalize your experience.`}
-        </div>
+        <div>{t`Here, you can update your profile to customize and personalize your experience.`}</div>
         <hr />
         <Button
           onClick={async () => {
