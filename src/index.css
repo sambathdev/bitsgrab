@@ -42,7 +42,7 @@
 
   --color-warning: var(--warning);
   --color-warning-accent: var(--warning-accent);
-  --color-warning-foreground: var(--warning-foreground);  
+  --color-warning-foreground: var(--warning-foreground);
 }
 
 :root {
@@ -122,9 +122,17 @@
   --warning-foreground: var(--color-amber-50);
 }
 
+.compact {
+  --spacing: 3px;
+  --text-sm: 10px;
+  --text-base: 12px;
+  --text-lg: 14px;
+  --text-xl: 16px;
+}
+
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring/50 text-base;
   }
   body {
     @apply bg-background text-foreground;
@@ -134,7 +142,8 @@
   }
 }
 
-body, html {
+body,
+html {
   overscroll-behavior: none;
 }
 .region-drag {
@@ -146,3 +155,21 @@ body, html {
 }
 
 /* * { outline: 1px solid red; } */
+
+@keyframes shine {
+  0% {
+    transform: translateX(-100%) skewX(-30deg);
+  }
+  100% {
+    transform: translateX(400%) skewX(-30deg); /* Increased distance for wider bars */
+  }
+}
+
+/* Utility class to apply the animation */
+.animate-shine {
+  animation: shine 2.5s infinite linear;
+}
+
+/* * {
+  font-size: 13px;
+} */

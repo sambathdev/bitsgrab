@@ -1,14 +1,16 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
+  useSidebar,
   // useSidebar,
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "./parts/app-sidebar";
 // import { WindowDragger } from "./parts/window-dragger";
 import {
+  useLayoutSize,
   useShortcut,
   useSidebarShortcut,
   useThemeShortcut,
@@ -26,14 +28,21 @@ const MainLayout = () => {
 };
 
 const LayoutWrapper = () => {
-  // const { state } = useSidebar();
+  const { state } = useSidebar();
+  const { layoutSize } = useLayoutSize();
   useSidebarShortcut();
   useThemeShortcut();
   useToastShortcut();
   useShortcut();
 
   const shortcuts = shortcutRegistry.getShortcuts();
-
+  const location = useLocation();
+  const locationMapToTitle = {
+    "/main/video-downloader/tiktok": "Tiktok Downloader",
+    "/main/video-downloader/youtube": "Youtube Downloader",
+    "/main/video-downloader/url-streamable": "Url Streamable Downloader"
+  };
+  const title = (locationMapToTitle as any)[location.pathname];
   return (
     <>
       {shortcuts.map((shortcut) => (
@@ -41,11 +50,31 @@ const LayoutWrapper = () => {
       ))}
       <AppSidebar />
       <SidebarInset>
-        <main className="w-full">
-          {/* <WindowDragger /> */}
-          <div className="flex h-[28px] items-center" data-tauri-drag-region>
-            <SidebarTrigger />
-          </div>
+        <div
+          style={{
+            left:
+              layoutSize == "compact"
+                ? state == "collapsed"
+                  ? "36px"
+                  : "192px"
+                : state == "collapsed"
+                ? "48px"
+                : "256px",
+          }}
+          className="flex bg-background w-full fixed z-50 h-[28px] top-0 items-center transition-all duration-200"
+          data-tauri-drag-region
+        >
+          <SidebarTrigger />
+          {!!title && (
+            <span className="select-none cursor-default" data-tauri-drag-region>
+              {title}
+            </span>
+          )}
+        </div>
+        <main
+          className="w-full mt-[28px] overflow-y-scroll"
+          style={{ maxHeight: "calc(100vh - 28px)" }}
+        >
           <Outlet />
         </main>
       </SidebarInset>

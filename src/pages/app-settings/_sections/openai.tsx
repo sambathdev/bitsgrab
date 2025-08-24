@@ -111,39 +111,7 @@ export const OpenAISettings = () => {
   // add agent select ************
   return (
     <div className="space-y-6">
-      <div>
-        <h3 className="text-2xl font-bold leading-relaxed tracking-tight">{t`OpenAI/Ollama Integration`}</h3>
-        <p className="leading-relaxed opacity-75">
-          {t`You can make use of the OpenAI API to help you generate content, or improve your writing while composing your resume.`}
-        </p>
-      </div>
-
-      <div className="prose prose-sm prose-zinc max-w-full dark:prose-invert">
-        <p>
-          <Trans>
-            You have the option to{" "}
-            <a
-              target="_blank"
-              rel="noopener noreferrer nofollow"
-              href="https://www.howtogeek.com/885918/how-to-get-an-openai-api-key/"
-            >
-              obtain your own OpenAI API key
-            </a>
-            . This key empowers you to leverage the API as you see fit.
-            Alternatively, if you wish to disable the AI features in Reactive
-            Resume altogether, you can simply remove the key from your settings.
-          </Trans>
-        </p>
-
-        <p>
-          <Trans>
-            You can also integrate with Ollama simply by setting the API key to
-            `sk-1234567890abcdef` and the Base URL to your Ollama URL, i.e.
-            `http://localhost:11434/v1`. You can also pick and choose models and
-            set the max tokens as per your preference.
-          </Trans>
-        </p>
-      </div>
+      <h3 className="text-2xl font-bold leading-relaxed tracking-tight">{t`OpenAI/Ollama Integration`}</h3>
 
       <Form {...form}>
         <form
@@ -281,45 +249,6 @@ export const OpenAISettings = () => {
           </div>
         </form>
       </Form>
-
-      <div className="prose prose-sm prose-zinc max-w-full dark:prose-invert">
-        <p>
-          <Trans>
-            Your API key is securely stored in the browser's local storage and
-            is only utilized when making requests to OpenAI via their official
-            SDK. Rest assured that your key is not transmitted to any external
-            server except when interacting with OpenAI's services.
-          </Trans>
-        </p>
-      </div>
-
-      <Alert variant="warning">
-        <div className="prose prose-neutral max-w-full text-xs leading-relaxed text-primary dark:prose-invert">
-          <Trans>
-            <span className="font-medium">Note: </span>
-            By utilizing the OpenAI API, you acknowledge and accept the{" "}
-            <a
-              href="https://openai.com/policies/terms-of-use"
-              rel="noopener noreferrer nofollow"
-              target="_blank"
-            >
-              terms of use
-            </a>{" "}
-            and{" "}
-            <a
-              href="https://openai.com/policies/privacy-policy"
-              rel="noopener noreferrer nofollow"
-              target="_blank"
-            >
-              privacy policy
-            </a>{" "}
-            outlined by OpenAI. Please note that Reactive Resume bears no
-            responsibility for any improper or unauthorized utilization of the
-            service, and any resulting repercussions or liabilities solely rest
-            on the user.
-          </Trans>
-        </div>
-      </Alert>
     </div>
   );
 };

@@ -13,7 +13,7 @@ export interface ShortcutDefinition {
 
 export const SHORTCUT_KEYS = {
   OPEN_SETTINGS: "meta+s",
-  OPEN_CLIPBOARD: "meta+c", 
+  OPEN_CLIPBOARD: "meta+m", 
   OPEN_SIDEBAR: "meta+t",
   TOGGLE_THEME: "meta+shift+t",
   SHOW_TOAST: "meta+shift+o",

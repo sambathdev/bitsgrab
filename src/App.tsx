@@ -2,28 +2,14 @@ import "./index.css";
 import MainLayout from "./layout/main-layout";
 import { Routes, Route, BrowserRouter } from "react-router-dom";
 import Home from "./pages/home-dashboard";
-import Settings from "./pages/child/app-settings/page";
+import Settings from "./pages/app-settings/page";
 import ClipboardApp from "./pages/child/clipboard-app/page";
 import { Providers } from "./providers";
 import ChildLayout from "./layout/child-layout";
+import AppRouter from "./router";
 
 function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Providers />}>
-          <Route path="main" element={<MainLayout />}>
-            <Route index element={<Home />} />
-            <Route path="test" element={<div>Test</div>} />
-          </Route>
-          <Route path="child" element={<ChildLayout />}>
-            <Route path="settings" element={<Settings />} />
-            <Route path="clipboard" element={<ClipboardApp />} />
-          </Route>
-        </Route>
-      </Routes>
-    </BrowserRouter>
-  );
+  return <AppRouter />;
 }
 
 export default App;

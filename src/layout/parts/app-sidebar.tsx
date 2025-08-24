@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { BookOpen, Bot, Settings2, SquareTerminal } from "lucide-react";
 
@@ -12,12 +10,12 @@ import {
   SidebarMenuButton,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { WINDOW_CONFIGS, WINDOW_LABEL } from "@/constants";
-import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { LocaleSwitch } from "@/components/locale-switch";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { Link } from "react-router-dom";
 import { handleClickDisableNewTab } from "@/lib/utils";
+import { useDownloaderStore, useSavePathStore } from "@/stores";
+import { useLayoutSize } from "@/hooks";
 
 // const teams = [
 //   {
@@ -38,80 +36,76 @@ import { handleClickDisableNewTab } from "@/lib/utils";
 // ];
 const navMain = [
   {
-    title: "Playground",
+    title: "Home",
+    url: "/main",
+    icon: Settings2,
+  },
+  {
+    title: "Video Downloader",
     url: "#",
     icon: SquareTerminal,
     isActive: true,
     items: [
       {
-        title: "History",
-        url: "#",
+        title: "Tiktok",
+        url: "/main/video-downloader/tiktok",
       },
       {
-        title: "Starred",
-        url: "#",
+        title: "Youtube",
+        url: "/main/video-downloader/youtube",
       },
       {
-        title: "Settings",
-        url: "#",
+        title: "Url Streamable",
+        url: "/main/video-downloader/url-streamable",
       },
     ],
   },
-  {
-    title: "Models",
-    url: "#",
-    icon: Bot,
-    items: [
-      {
-        title: "Genesis",
-        url: "#",
-      },
-      {
-        title: "Explorer",
-        url: "#",
-      },
-      {
-        title: "Quantum",
-        url: "#",
-      },
-    ],
-  },
-  {
-    title: "Documentation",
-    url: "#",
-    icon: BookOpen,
-    items: [
-      {
-        title: "Introduction",
-        url: "#",
-      },
-      {
-        title: "Get Started",
-        url: "#",
-      },
-      {
-        title: "Tutorials",
-        url: "#",
-      },
-      {
-        title: "Changelog",
-        url: "#",
-      },
-    ],
-  },
+  // {
+  //   title: "Models",
+  //   url: "#",
+  //   icon: Bot,
+  //   items: [
+  //     {
+  //       title: "Genesis",
+  //       url: "#",
+  //     },
+  //     {
+  //       title: "Explorer",
+  //       url: "#",
+  //     },
+  //     {
+  //       title: "Quantum",
+  //       url: "#",
+  //     },
+  //   ],
+  // },
+  // {
+  //   title: "Documentation",
+  //   url: "#",
+  //   icon: BookOpen,
+  //   items: [
+  //     {
+  //       title: "Introduction",
+  //       url: "#",
+  //     },
+  //     {
+  //       title: "Get Started",
+  //       url: "#",
+  //     },
+  //     {
+  //       title: "Tutorials",
+  //       url: "#",
+  //     },
+  //     {
+  //       title: "Changelog",
+  //       url: "#",
+  //     },
+  //   ],
+  // },
   {
     title: "Settings",
-    url: "#",
-    windowLabel: "settings",
+    url: "/main/settings",
     icon: Settings2,
-    onClick: () => {
-      const settingWindow = new WebviewWindow(WINDOW_LABEL.SETTINGS, {
-        ...WINDOW_CONFIGS[WINDOW_LABEL.SETTINGS],
-      });
-      settingWindow.once("tauri://created", async function () {
-        // do the initial action pass from current window
-      });
-    },
     // items: [
     //   {
     //     title: "General",
@@ -158,6 +152,9 @@ const navMain = [
 // ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { isDownloading } = useDownloaderStore();
+  const { layoutSize, setLayoutSize } = useLayoutSize();
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -173,16 +170,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenuButton>
       </SidebarHeader>
       <SidebarContent>
+        {isDownloading && (
+          <div>Is Downloading make this component, disable menus</div>
+        )}
         <NavMain items={navMain} />
         {/* <NavProjects projects={projects} /> */}
       </SidebarContent>
       <SidebarFooter>
         {/* <NavUser user={user} /> */}
         <div className="flex items-center">
-          <Link to="/main/test" onClick={handleClickDisableNewTab}>Test</Link>
-          <Link to="/main" onClick={handleClickDisableNewTab}>Home</Link>
           <LocaleSwitch />
           <ThemeSwitch />
+          <span
+            onClick={() => {
+              setLayoutSize(layoutSize == "compact" ? "normal" : "compact");
+            }}
+          >
+            Toggle
+          </span>
         </div>
       </SidebarFooter>
       <SidebarRail />

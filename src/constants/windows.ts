@@ -13,7 +13,7 @@ export const WINDOW_CONFIGS = {
     height: 300,
   },
   [WINDOW_LABEL.SETTINGS]: {
-    url: "/child/settings",
+    url: "/main/settings",
     title: "Settings",
     x: 0,
     y: 1200,
