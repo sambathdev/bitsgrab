@@ -13,73 +13,8 @@ import { invoke } from "@tauri-apps/api/core";
 const Home = () => {
   const { login } = useLogin();
   return (
-    <div>
-      <button
-        onClick={async () => {
-          await invoke("greet");
-        }}
-      >
-        Install
-      </button>
-      <hr />
-
-      <div>
-        Home
-        <button
-          onClick={async () => {
-            await login({ identifier: "string", password: "" });
-          }}
-        >
-          Login
-        </button>
-        <Button
-          onClick={() => {
-            const id = customToast({
-              title: "This is a headless toast",
-              description:
-                "You have full control of styles and jsx, while still having the animations.",
-              buttonOk: {
-                label: "Reply",
-                onClick: () => toast.dismiss(id),
-              },
-              buttonCancel: {
-                label: "Canel",
-                onClick: () => toast.dismiss(id),
-              },
-            });
-          }}
-        >
-          Button
-        </Button>
-        <Checkbox />
-        <ClipboardApp />
-        <div>
-          Side bar
-          <Button
-            onClick={() => {
-              const settingWindow = new WebviewWindow(
-                WINDOW_LABEL.CLIPBOARD,
-                WINDOW_CONFIGS[WINDOW_LABEL.CLIPBOARD]
-              );
-              settingWindow.once("tauri://created", async function () {
-                // do the initial action pass from current window
-              });
-            }}
-          >
-            New Win
-          </Button>
-        </div>
-        <div>{t`Here, you can update your profile to customize and personalize your experience.`}</div>
-        <hr />
-        <Button
-          onClick={async () => {
-            const result = await fixGrammar("I am go to an mall.");
-            console.log(555, result);
-          }}
-        >
-          Ai Test
-        </Button>
-      </div>
+    <div className="p-2">
+      <div>Home</div>
     </div>
   );
 };

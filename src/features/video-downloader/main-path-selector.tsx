@@ -20,9 +20,19 @@ export function MainPathSelector() {
   return (
     <div>
       {mainPath ? (
-        <div onClick={changeMainPath}>{mainPath}</div>
+        <div className="flex items-center gap-2">
+          <span>{mainPath}</span>
+          <button
+            className=" border border-border px-1 text-foreground rounded hover:bg-slate-100 dark:hover:bg-slate-700"
+            onClick={changeMainPath}
+          >
+            Change
+          </button>
+        </div>
       ) : (
-        <div onClick={changeMainPath}>Select Main Path</div>
+        <div className="flex items-center" onClick={changeMainPath}>
+          <span>Select Main Path</span>
+        </div>
       )}
     </div>
   );

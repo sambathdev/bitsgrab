@@ -35,7 +35,7 @@ export function NavMain({
     }[];
   }[];
 }) {
-  const { setOpenMobile } = useSidebar();
+  const { state, setOpenMobile, setOpen } = useSidebar();
   return (
     <SidebarGroup>
       {/* <SidebarGroupLabel>Platform</SidebarGroupLabel> */}
@@ -50,7 +50,14 @@ export function NavMain({
             <SidebarMenuItem>
               {item.items ? (
                 <>
-                  <CollapsibleTrigger asChild>
+                  <CollapsibleTrigger
+                    asChild
+                    onClick={() => {
+                      if (state == "collapsed") {
+                        setOpen(true);
+                      }
+                    }}
+                  >
                     <SidebarMenuButton tooltip={item.title}>
                       {item.icon && <item.icon />}
                       <span>{item.title}</span>
@@ -81,6 +88,7 @@ export function NavMain({
               ) : (
                 <SidebarMenuButton
                   asChild
+                  tooltip={item.title}
                   onClick={() => {
                     item.onClick && item.onClick();
                     setOpenMobile(false);

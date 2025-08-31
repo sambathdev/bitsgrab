@@ -8,12 +8,14 @@ import {
   SidebarHeader,
   SidebarMenuButton,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { LocaleSwitch } from "@/components/locale-switch";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { useLayoutSize } from "@/hooks";
 import { useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { FingerprintSimple, FrameCorners, House, HouseLine, MonitorPlay, Resize } from "@phosphor-icons/react";
+import { Button } from "@/components/reactive-resume";
 
 // const teams = [
 //   {
@@ -36,12 +38,12 @@ const navMain = [
   {
     title: "Home",
     url: "/main",
-    icon: Settings2,
+    icon: HouseLine,
   },
   {
     title: "Video Downloader",
     url: "#",
-    icon: SquareTerminal,
+    icon: MonitorPlay,
     isActive: true,
     items: [
       {
@@ -100,6 +102,17 @@ const navMain = [
   //     },
   //   ],
   // },
+
+  {
+    title: "Encryption",
+    url: "/main/encryption",
+    icon: FingerprintSimple,
+  },
+  {
+    title: "Frame Capture",
+    url: "/main/frame-capture",
+    icon: FrameCorners,
+  },
   {
     title: "Settings",
     url: "/main/settings",
@@ -122,16 +135,6 @@ const navMain = [
     //     url: "#",
     //   },
     // ],
-  },
-  {
-    title: "Encryption",
-    url: "/main/encryption",
-    icon: Settings2,
-  },
-  {
-    title: "Frame Capture",
-    url: "/main/frame-capture",
-    icon: Settings2,
   },
 ];
 
@@ -162,6 +165,7 @@ const navMain = [
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [isDownloading, setIsDownloading] = React.useState(false);
   const { layoutSize, setLayoutSize } = useLayoutSize();
+  const { state, isMobile } = useSidebar();
   const handleStopDownloadRef = React.useRef<any>(null);
 
   useEffect(() => {
@@ -175,7 +179,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
     return () => window.removeEventListener("downloading", handleKeyDown);
   }, [setIsDownloading]);
-
+  const iconSize = layoutSize == "compact" ? 15 : 18;
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -195,32 +199,40 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {/* <NavProjects projects={projects} /> */}
         {isDownloading && (
           <div className="w-full h-full bg-slate-100/80 absolute flex flex-col items-center justify-center opacity-0 hover:opacity-100">
-            <span className="text-shadow-2xs mb-2">Downloading...</span>
-            <Button
-              className="text-nowrap bg-red-600"
-              onClick={() => {
-                handleStopDownloadRef.current &&
-                  handleStopDownloadRef.current();
-              }}
-            >
-              Stop Download
-            </Button>
+            {state == "expanded" && (
+              <>
+                <span className="text-shadow-2xs mb-2">Downloading...</span>
+                <Button
+                  className="text-nowrap bg-red-600"
+                  onClick={() => {
+                    handleStopDownloadRef.current &&
+                      handleStopDownloadRef.current();
+                  }}
+                >
+                  Stop Download
+                </Button>
+              </>
+            )}
           </div>
         )}
       </SidebarContent>
       <SidebarFooter>
         {/* <NavUser user={user} /> */}
-        <div className="flex items-center">
-          <LocaleSwitch />
-          <ThemeSwitch />
-          <span
-            onClick={() => {
-              setLayoutSize(layoutSize == "compact" ? "normal" : "compact");
-            }}
-          >
-            Toggle
-          </span>
-        </div>
+        {state == "expanded" && (
+          <div className="flex items-center">
+            <LocaleSwitch iconSize={iconSize} />
+            <ThemeSwitch size={iconSize} />
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={() => {
+                setLayoutSize(layoutSize == "compact" ? "normal" : "compact");
+              }}
+            >
+              <Resize size={iconSize} />
+            </Button>
+          </div>
+        )}
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

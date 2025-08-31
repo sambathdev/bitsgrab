@@ -3,10 +3,8 @@ import { t } from "@lingui/core/macro";
 import { OpenAISettings } from "./_sections/openai";
 import { motion } from "framer-motion";
 import { MainPathSelector } from "@/features/video-downloader/main-path-selector";
-import { useUiStore } from "@/stores";
 
 const Settings = () => {
-  const { layoutSize, setLayoutSize } = useUiStore();
   return (
     <div className="p-2">
       <div className="max-w-2xl space-y-4">
@@ -25,7 +23,7 @@ const Settings = () => {
             </h3>
             <MainPathSelector />
           </div>
-          <div className="">
+          {/* <div className="">
             <h3 className="text-2xl font-bold leading-relaxed tracking-tight">
               UI Config
             </h3>
@@ -36,11 +34,11 @@ const Settings = () => {
             >
               {layoutSize}
             </div>
-          </div>
-          <div className="space-y-6">
+          </div> */}
+          {/* <div className="space-y-6">
             <OpenAISettings />
             <Separator />
-          </div>
+          </div> */}
         </ScrollArea>
       </div>
     </div>

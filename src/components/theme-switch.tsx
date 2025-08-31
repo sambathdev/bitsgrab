@@ -10,7 +10,7 @@ type Props = {
   className?: string;
 };
 
-export const ThemeSwitch = ({ size = 20, className }: Props) => {
+export const ThemeSwitch = ({ size = 20, className, }: Props) => {
   const { theme, toggleTheme } = useTheme();
 
   const variants: Variants = useMemo(() => {

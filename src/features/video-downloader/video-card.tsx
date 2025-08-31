@@ -41,7 +41,7 @@ export function VideoCard({
   const { layoutSize } = useLayoutSize();
   const [progress, setProgress] = useState(0);
 
-  const iconSize = layoutSize == 'normal' ? 18: 15;
+  const iconSize = layoutSize == 'compact' ? 15: 18;
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null;

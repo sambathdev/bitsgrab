@@ -182,14 +182,14 @@ const FrameCapture: React.FC = () => {
 
   const FileSelector = () => (
     <div className="flex flex-col items-center justify-center h-full text-center p-8">
-      <FilmIcon className="w-24 h-24 text-indigo-500 mb-4" />
-      <h1 className="text-4xl font-bold mb-2 text-gray-100">Video Frame Extractor</h1>
+      <FilmIcon className="w-24 h-24 text-amber-300 mb-4" />
+      <h1 className="text-4xl font-bold mb-2 text-foreground">Video Frame Extractor</h1>
       <p className="text-lg text-gray-400 mb-8 max-w-xl">
         Select a local video file to begin. You can then scrub through the timeline, capture frames at any point, and export them as JPEG images.
       </p>
       <button 
         onClick={openFilePicker}
-        className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors duration-200 shadow-lg"
+        className="bg-amber-300 hover:bg-amber-400 text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors duration-200 shadow-lg"
       >
         Select Video
       </button>
@@ -197,7 +197,7 @@ const FrameCapture: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-200 flex flex-col p-4 md:p-8">
+    <div className="flex flex-col p-4" style={{minHeight: "calc(100vh - 28px)"}}>
       <canvas ref={canvasRef} className="hidden"></canvas>
       <input
         type="file"
