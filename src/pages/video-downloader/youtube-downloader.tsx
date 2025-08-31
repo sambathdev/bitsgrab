@@ -1,26 +1,18 @@
-import { useLogin } from "@/services/auth";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { customToast } from "@/components/ui/toast";
-import { toast } from "sonner";
-import { t } from "@lingui/core/macro";
-import { VideoStatus, WINDOW_CONFIGS, WINDOW_LABEL } from "@/constants";
-import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
-import { fixGrammar } from "@/services/agent-ai";
-import { filesize } from "filesize";
+import { VideoStatus } from "@/constants";
 import { invoke } from "@tauri-apps/api/core";
 import { Input } from "@/components/reactive-resume";
 import { useEffect, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { MainPathSelector } from "@/features/video-downloader/main-path-selector";
 import { useSavePathStore } from "@/stores";
-import numeral from "numeral";
 import { VideoCard } from "@/features/video-downloader/video-card";
+import { IVideo } from "./type";
 
 const YoutubeDownloader = () => {
   const { mainPath, setMainPath } = useSavePathStore();
   const [username, setUsername] = useState("");
-  const [videoList, setVideoList] = useState<any[]>([]);
+  const [videoList, setVideoList] = useState<IVideo[]>([]);
   const [videoListLoading, setVideoListLoading] = useState(false);
   useEffect(() => {
     if (videoListLoading) setVideoList([]);
@@ -79,7 +71,7 @@ const YoutubeDownloader = () => {
           disabled={videoListLoading || isDownloading}
           className="text-nowrap"
           onClick={async () => {
-            if(!username) return;
+            if (!username) return;
             try {
               setVideoListLoading(true);
               const _videosList: any[] = await invoke("extract_youtube", {
@@ -109,7 +101,9 @@ const YoutubeDownloader = () => {
                 size={video.size}
                 progress_size={video.progress_size}
                 status={video.status}
-                is_init_request={video.is_init_request}
+                cover={
+                  video.cover_youtube ? video.cover_youtube[0].url : undefined
+                }
                 platform="youtube"
               />
             );

@@ -16,11 +16,12 @@ import { MainPathSelector } from "@/features/video-downloader/main-path-selector
 import { useSavePathStore } from "@/stores";
 import numeral from "numeral";
 import { VideoCard } from "@/features/video-downloader/video-card";
+import { IVideo } from "./type";
 
 const TiktokDownloader = () => {
   const { mainPath, setMainPath } = useSavePathStore();
   const [username, setUsername] = useState("");
-  const [videoList, setVideoList] = useState<any[]>([]);
+  const [videoList, setVideoList] = useState<IVideo[]>([]);
   const [videoListLoading, setVideoListLoading] = useState(false);
   useEffect(() => {
     if (videoListLoading) setVideoList([]);
@@ -107,6 +108,7 @@ const TiktokDownloader = () => {
                 size={video.size}
                 progress_size={video.progress_size}
                 status={video.status}
+                cover={video.cover}
                 platform="tiktok"
               />
             );

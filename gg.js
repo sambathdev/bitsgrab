@@ -1,0 +1,3 @@
+,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true

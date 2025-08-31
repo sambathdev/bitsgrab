@@ -9,16 +9,27 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+interface VideoCardProps {
+  video_id: any;
+  title: any;
+  play_count: any;
+  size: any;
+  progress_size: any;
+  status: any;
+  platform: any;
+  cover: any;
+}
+
 export function VideoCard({
   video_id,
   title,
-  play_count,
-  size,
-  progress_size,
+  play_count = 0,
+  size = 0,
+  progress_size = 0,
   status,
   platform,
-  is_init_request,
-}: any) {
+  cover,
+}: VideoCardProps) {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -67,25 +78,23 @@ export function VideoCard({
   return (
     <div className="border border-border p-1 rounded-sm my-1 flex justify-between relative overflow-hidden">
       {status == VideoStatus.Downloading && <LoadingBar progress={progress} />}
-      <div className="flex flex-col">
-        <span>Video ID: {video_id}</span>
+      <div className="flex items-center justify-start">
+        {cover ? (
+          <img src={cover} alt="" className="w-[50px] object-cover max-h-[60px] min-w-[50px] mr-1" />
+        ) : (
+          <div className="w-[50px] min-w-[50px] max-h-[60px] bg-amber-100 h-full mr-1" />
+        )}
+        <div className="flex flex-col">
+          <span>Video ID: {video_id}</span>
+          <span className="line-clamp-1">Video Title: {title}</span>
 
-        {/* <Tooltip>
-          <TooltipTrigger className="text-left">
-            <span className="line-clamp-1">Video Title: {title}</span>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>{title}</p>
-          </TooltipContent>
-        </Tooltip> */}
-        <span className="line-clamp-1">Video Title: {title}</span>
-
-        {/* <span>
+          {/* <span>
           Video Size:{" "}
           {platform == "youtube"
             ? `${is_init_request ? "Initing Request" : "Unknown"}`
             : fileSizeProgress}
         </span> */}
+        </div>
       </div>
       <span className="flex flex-col justify-between min-w-[100px] items-end">
         <span
@@ -95,9 +104,7 @@ export function VideoCard({
         >
           {status}
         </span>
-        <span>
-          {numeral(play_count).format("0.00a").toUpperCase()}
-        </span>
+        <span className="text-xs text-nowrap">{numeral(play_count).format("0.00a").toUpperCase()} Views</span>
       </span>
     </div>
   );

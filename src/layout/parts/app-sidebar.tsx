@@ -125,6 +125,16 @@ const navMain = [
     //   },
     // ],
   },
+  {
+    title: "Encryption",
+    url: "/main/encryption",
+    icon: Settings2,
+  },
+  {
+    title: "Frame Capture",
+    url: "/main/frame-capture",
+    icon: Settings2,
+  },
 ];
 
 // const user = {

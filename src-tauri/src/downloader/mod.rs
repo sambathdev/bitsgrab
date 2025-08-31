@@ -2,7 +2,9 @@ use crate::app_state::AppStateType;
 use crate::models::DownloadProgress;
 use crate::models::Video;
 use crate::models::VideoStatus;
+use futures::pin_mut;
 use futures::stream::{FuturesUnordered, StreamExt};
+use futures::FutureExt; // for .fuse()
 use reqwest::Client;
 use std::process::Stdio;
 use std::{fs::File, io::Write, path::Path, sync::Arc};
@@ -10,6 +12,12 @@ use tauri::{AppHandle, Emitter, Manager};
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::process::Command;
 use tokio::sync::Semaphore;
+
+use std::collections::HashMap;
+use std::sync::Mutex;
+use tokio::sync::oneshot;
+use tokio::task::{self, JoinHandle};
+
 pub struct Downloader {
     id: String,
     client: Arc<Client>,
@@ -388,8 +396,92 @@ pub async fn process_download(
 pub async fn cancel_download(app: AppHandle, window: tauri::Window, username: String) {
     let state = app.state::<AppStateType>();
     if let Ok(mut downloader_state) = state.lock() {
-        downloader_state.downloader_ids.retain(|x| x != String::from(username.clone()).as_str());
+        downloader_state
+            .downloader_ids
+            .retain(|x| x != String::from(username.clone()).as_str());
 
-        println!("xxxxyyyyy {:?} {}", downloader_state.downloader_ids, username);
+        println!(
+            "xxxxyyyyy {:?} {}",
+            downloader_state.downloader_ids, username
+        );
     };
+}
+
+// Downloading 1 video =================
+
+type DownloadId = String;
+
+struct DownloadHandle {
+    task: JoinHandle<()>,
+    cancel_tx: oneshot::Sender<()>,
+}
+
+#[derive(Default)]
+pub struct DownloadManager {
+    downloads: HashMap<DownloadId, DownloadHandle>,
+}
+
+impl DownloadManager {
+    pub fn new() -> Self {
+        Self {
+            downloads: HashMap::new(),
+        }
+    }
+}
+
+#[tauri::command]
+pub async fn start_download_one(
+    id: String,
+    video: Video,
+    state: tauri::State<'_, Arc<Mutex<DownloadManager>>>,
+    app: tauri::AppHandle,
+) -> Result<(), String> {
+    println!("{:?}", video);
+    let (cancel_tx, cancel_rx) = oneshot::channel();
+
+    let app_handle = app.clone();
+    let download_id = id.clone();
+
+    // spawn async download task
+    let task = task::spawn(async move {
+        let mut progress = 0;
+
+        let cancel_fut = cancel_rx.fuse();
+        pin_mut!(cancel_fut);
+        loop {
+            tokio::select! {
+                _ = &mut cancel_fut => {
+                    println!("Download {download_id} canceled.");
+                    app_handle.emit("download-canceled", &download_id).unwrap();
+                    break;
+                }
+                _ = tokio::time::sleep(std::time::Duration::from_millis(500)) => {
+                    progress += 10;
+                    app_handle.emit("download-progress", &(download_id.clone(), progress)).unwrap();
+
+                    if progress >= 100 {
+                        app_handle.emit("download-complete", &download_id).unwrap();
+                        break;
+                    }
+                }
+            }
+        }
+    });
+
+    let mut mgr = state.lock().unwrap();
+    mgr.downloads.insert(id, DownloadHandle { task, cancel_tx });
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn cancel_download_one(
+    id: String,
+    state: tauri::State<'_, Arc<Mutex<DownloadManager>>>,
+) -> Result<(), String> {
+    let mut mgr = state.lock().unwrap();
+    if let Some(handle) = mgr.downloads.remove(&id) {
+        let _ = handle.cancel_tx.send(()); // signal cancel
+    }
+    Ok(())
 }

@@ -1,6 +1,11 @@
 use serde::Deserialize;
 use serde::Serialize;
 
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct YoutubeThumbnail {
+    pub url: String,
+}
+
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub enum VideoStatus {
     Idle,
@@ -17,6 +22,8 @@ pub struct Video {
     pub play: String,
     pub title: String,
     pub cover: Option<String>,
+    #[serde(alias = "thumbnails")]
+    pub cover_youtube: Option<Vec<YoutubeThumbnail>>,
     #[serde(alias = "view_count")]
     pub play_count: Option<u32>,
     pub comment_count: Option<u32>,

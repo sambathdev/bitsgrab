@@ -19,6 +19,8 @@ import ClipboardApp from "@/pages/child/clipboard-app/page";
 import TiktokDownloader from "@/pages/video-downloader/tiktok-downloader";
 import YoutubeDownloader from "@/pages/video-downloader/youtube-downloader";
 import UrlStreamableDownloader from "@/pages/video-downloader/url-streamable-downloader";
+import Encryption from "@/pages/encryption/page";
+import FrameCapture from "@/pages/frame-capture/page";
 
 function AppRouter() {
   return (
@@ -31,6 +33,8 @@ function AppRouter() {
             <Route path="video-downloader/tiktok" element={<TiktokDownloader />} />
             <Route path="video-downloader/url-streamable" element={<UrlStreamableDownloader />} />
             <Route path="settings" element={<Settings />} />
+            <Route path="encryption" element={<Encryption />} />
+            <Route path="frame-capture" element={<FrameCapture />} />
           </Route>
           <Route path="child" element={<ChildLayout />}>
             <Route path="clipboard" element={<ClipboardApp />} />

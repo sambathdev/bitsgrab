@@ -8,7 +8,7 @@ import { useUiStore } from "@/stores";
 const Settings = () => {
   const { layoutSize, setLayoutSize } = useUiStore();
   return (
-    <div className="p-4">
+    <div className="p-2">
       <div className="max-w-2xl space-y-4">
         <motion.h1
           initial={{ opacity: 0, x: -50 }}

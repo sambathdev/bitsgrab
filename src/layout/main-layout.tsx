@@ -28,7 +28,7 @@ const MainLayout = () => {
 };
 
 const LayoutWrapper = () => {
-  const { state } = useSidebar();
+  const { state, isMobile } = useSidebar();
   const { layoutSize } = useLayoutSize();
   useSidebarShortcut();
   useThemeShortcut();
@@ -40,7 +40,7 @@ const LayoutWrapper = () => {
   const locationMapToTitle = {
     "/main/video-downloader/tiktok": "Tiktok Downloader",
     "/main/video-downloader/youtube": "Youtube Downloader",
-    "/main/video-downloader/url-streamable": "Url Streamable Downloader"
+    "/main/video-downloader/url-streamable": "Url Streamable Downloader",
   };
   const title = (locationMapToTitle as any)[location.pathname];
   return (
@@ -52,14 +52,15 @@ const LayoutWrapper = () => {
       <SidebarInset>
         <div
           style={{
-            left:
-              layoutSize == "compact"
-                ? state == "collapsed"
-                  ? "36px"
-                  : "192px"
-                : state == "collapsed"
-                ? "48px"
-                : "256px",
+            left: isMobile
+              ? "0px"
+              : layoutSize == "compact"
+              ? state == "collapsed"
+                ? "36px"
+                : "192px"
+              : state == "collapsed"
+              ? "48px"
+              : "256px",
           }}
           className="flex bg-background w-full fixed z-50 h-[28px] top-0 items-center transition-all duration-200"
           data-tauri-drag-region
@@ -73,7 +74,14 @@ const LayoutWrapper = () => {
         </div>
         <main
           className="w-full mt-[28px] overflow-y-scroll"
-          style={{ maxHeight: "calc(100vh - 28px)" }}
+          style={{
+            maxHeight: "calc(100vh - 28px)",
+            maxWidth: isMobile
+              ? "100vw"
+              : state == "collapsed"
+              ? "calc(100vw - 48px)"
+              : "calc(100vw - 256px)",
+          }}
         >
           <Outlet />
         </main>
