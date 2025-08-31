@@ -12,6 +12,7 @@ import { IVideo } from "./type";
 const YoutubeDownloader = () => {
   const { mainPath, setMainPath } = useSavePathStore();
   const [username, setUsername] = useState("");
+  const [lastFetchUsername, setLastFectUsername] = useState("");
   const [videoList, setVideoList] = useState<IVideo[]>([]);
   const [videoListLoading, setVideoListLoading] = useState(false);
   useEffect(() => {
@@ -48,6 +49,56 @@ const YoutubeDownloader = () => {
       unlisten.then((f) => f());
     };
   }, []);
+  const handleFetchVideo = async () => {
+    if (!username) return;
+    setLastFectUsername(username);
+    try {
+      setVideoListLoading(true);
+      const _videosList: any[] = await invoke("extract_youtube", {
+        username,
+      });
+      setVideoList(_videosList);
+      console.log(_videosList);
+    } catch (err) {
+    } finally {
+      setVideoListLoading(false);
+    }
+  };
+  const handleStartDownload = async () => {
+    try {
+      await invoke("process_download", {
+        videoList: videoList,
+        username: lastFetchUsername,
+        platform: "youtube",
+        mainPath: mainPath,
+      });
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setVideoListLoading(false);
+    }
+  };
+  const handleStopDownload = async () => {
+    try {
+      await invoke("cancel_download", {
+        username: username,
+      });
+      setVideoList((prev) =>
+        prev.map((video) => {
+          if (video.status == VideoStatus.Downloading) {
+            return {
+              ...video,
+              status: null,
+              is_init_request: false,
+            };
+          }
+          return video;
+        })
+      );
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const isDownloading = videoList.some(
     (v) => v.status == VideoStatus.Downloading
@@ -56,40 +107,40 @@ const YoutubeDownloader = () => {
     (v) => v.status == VideoStatus.Completed
   );
   if (!mainPath) return <MainPathSelector />;
-
+  window.dispatchEvent(
+    new CustomEvent("downloading", {
+      detail: {
+        data: { isDownloading, handleStopDownload },
+      },
+    })
+  );
   return (
-    <div className="p-2">
+    <div className="p-2 pb-12">
       <div className="flex gap-2 items-center">
         <Input
-          disabled={isDownloading}
+          disabled={videoListLoading || isDownloading}
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           className="w-full"
           placeholder="Youtube channel username"
+          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+            if (e.key === "Enter") {
+              if (videoListLoading || isDownloading) return;
+              console.log("Enter pressed!");
+              handleFetchVideo();
+            }
+          }}
         />
         <Button
           disabled={videoListLoading || isDownloading}
           className="text-nowrap"
-          onClick={async () => {
-            if (!username) return;
-            try {
-              setVideoListLoading(true);
-              const _videosList: any[] = await invoke("extract_youtube", {
-                username,
-              });
-              setVideoList(_videosList);
-              console.log(_videosList);
-            } catch (err) {
-            } finally {
-              setVideoListLoading(false);
-            }
-          }}
+          onClick={handleFetchVideo}
         >
           Fetch Video List
         </Button>
       </div>
       <div>
-        {videoListLoading && <div>Loading ...</div>}
+        {videoListLoading && <div className="animate-bounce mt-2">Loading ...</div>}
         <div className="text-sm">
           {videoList.map((video: any, key: number) => {
             return (
@@ -105,6 +156,7 @@ const YoutubeDownloader = () => {
                   video.cover_youtube ? video.cover_youtube[0].url : undefined
                 }
                 platform="youtube"
+                folderPath={`${mainPath}/youtube/${username}`}
               />
             );
           })}
@@ -115,20 +167,7 @@ const YoutubeDownloader = () => {
           {!isDownloading && (
             <Button
               className="text-nowrap"
-              onClick={async () => {
-                try {
-                  await invoke("process_download", {
-                    videoList: videoList,
-                    username: username,
-                    platform: "youtube",
-                    mainPath: mainPath,
-                  });
-                } catch (err) {
-                  console.log(err);
-                } finally {
-                  setVideoListLoading(false);
-                }
-              }}
+              onClick={handleStartDownload}
               disabled={isAllCompleted}
             >
               {isAllCompleted ? "All Complete" : "Start Download"}
@@ -137,27 +176,7 @@ const YoutubeDownloader = () => {
           {isDownloading && (
             <Button
               className="text-nowrap bg-red-600"
-              onClick={async () => {
-                try {
-                  await invoke("cancel_download", {
-                    username: username,
-                  });
-                  setVideoList((prev) =>
-                    prev.map((video) => {
-                      if (video.status == VideoStatus.Downloading) {
-                        return {
-                          ...video,
-                          status: null,
-                          is_init_request: false,
-                        };
-                      }
-                      return video;
-                    })
-                  );
-                } catch (err) {
-                  console.log(err);
-                }
-              }}
+              onClick={handleStopDownload}
             >
               Stop Download
             </Button>

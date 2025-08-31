@@ -16,7 +16,9 @@ use tokio::sync::Semaphore;
 use std::collections::HashMap;
 use std::sync::Mutex;
 use tokio::sync::oneshot;
-use tokio::task::{self, JoinHandle};
+use tokio::task;
+use tokio::task::JoinHandle;
+use tokio::time::{sleep, Duration};
 
 pub struct Downloader {
     id: String,
@@ -37,7 +39,7 @@ impl Downloader {
         Self {
             client: Arc::new(Client::new()),
             semaphore5: Arc::new(Semaphore::new(5)),
-            semaphore10: Arc::new(Semaphore::new(10)),
+            semaphore10: Arc::new(Semaphore::new(2)),
             output_dir: output_dir.clone(),
             app: app.clone(),
             id: id,
@@ -97,7 +99,7 @@ impl Downloader {
         println!("All downloads complete.");
     }
 
-    async fn download_single_video(
+    pub async fn download_single_video(
         downloader_id: String,
         client: Arc<Client>,
         video: &Video,
@@ -297,22 +299,26 @@ impl Downloader {
 
         while let Some(chunk) = reader.next_segment().await.unwrap() {
             let text = String::from_utf8_lossy(&chunk);
+            println!("{}", text);
+            // if let Some(start) = text.find("]") {
+            //     if text.len() > start + 30 {
+            //         if (text.contains("%") && text.contains("of")) {
+            //             let progress = DownloadProgress {
+            //                 video_id: video.video_id.clone(),
+            //                 status: VideoStatus::Downloading,
+            //                 progress_size: Some(2),
+            //                 is_init_request: Some(false),
+            //             };
+            //             app.emit("download_progress", &progress).unwrap();
+            //         }
+            //         let substr = &text[start + 1..start + 30];
+            //         // println!("Got: {}", substr);
+            //     }
+            // }
 
-            if let Some(start) = text.find("]") {
-                if text.len() > start + 30 {
-                    if (text.contains("%") && text.contains("of")) {
-                        let progress = DownloadProgress {
-                            video_id: video.video_id.clone(),
-                            status: VideoStatus::Downloading,
-                            progress_size: Some(2),
-                            is_init_request: Some(false),
-                        };
-                        app.emit("download_progress", &progress).unwrap();
-                    }
-                    let substr = &text[start + 1..start + 30];
-                    println!("Got: {}", substr);
-                }
-            }
+            // check if the stdout contain the error message, emit to fail or idle
+            // ************************************************************************
+            // ************
             let mut kill = false;
             let state = app.state::<AppStateType>();
             if let Ok(downloader_state) = state.lock() {
@@ -411,77 +417,165 @@ pub async fn cancel_download(app: AppHandle, window: tauri::Window, username: St
 
 type DownloadId = String;
 
-struct DownloadHandle {
-    task: JoinHandle<()>,
-    cancel_tx: oneshot::Sender<()>,
+struct DownloadTask {
+    handle: tauri::async_runtime::JoinHandle<()>,
+    cancel: oneshot::Sender<()>,
 }
 
 #[derive(Default)]
 pub struct DownloadManager {
-    downloads: HashMap<DownloadId, DownloadHandle>,
+    tasks: HashMap<DownloadId, DownloadTask>,
 }
 
 impl DownloadManager {
     pub fn new() -> Self {
         Self {
-            downloads: HashMap::new(),
+            tasks: HashMap::new(),
         }
     }
-}
+    fn start_download(&mut self, video: Video, main_path: String, app: AppHandle) {
+        let video_id = video.video_id.clone();
+        let _video_id = video.video_id.clone();
 
-#[tauri::command]
-pub async fn start_download_one(
-    id: String,
-    video: Video,
-    state: tauri::State<'_, Arc<Mutex<DownloadManager>>>,
-    app: tauri::AppHandle,
-) -> Result<(), String> {
-    println!("{:?}", video);
-    let (cancel_tx, cancel_rx) = oneshot::channel();
+        let platform = video.platform.unwrap_or(String::from("no_platform"));
+        let username = video.username.unwrap_or(String::from("no_username"));
+        let output_dir = format!("{}/{}/{}", main_path, platform, username);
 
-    let app_handle = app.clone();
-    let download_id = id.clone();
+        let filename = format!("{}/{}.mp4", output_dir, video.video_id);
+        let txt_filename = format!("{}/{}.txt", output_dir, video.video_id);
 
-    // spawn async download task
-    let task = task::spawn(async move {
-        let mut progress = 0;
-
-        let cancel_fut = cancel_rx.fuse();
-        pin_mut!(cancel_fut);
-        loop {
-            tokio::select! {
-                _ = &mut cancel_fut => {
-                    println!("Download {download_id} canceled.");
-                    app_handle.emit("download-canceled", &download_id).unwrap();
-                    break;
-                }
-                _ = tokio::time::sleep(std::time::Duration::from_millis(500)) => {
-                    progress += 10;
-                    app_handle.emit("download-progress", &(download_id.clone(), progress)).unwrap();
-
-                    if progress >= 100 {
-                        app_handle.emit("download-complete", &download_id).unwrap();
-                        break;
-                    }
-                }
+        if !std::path::Path::new(&output_dir).exists() {
+            if let Err(e) = std::fs::create_dir_all(&output_dir) {
+                panic!("Failed to create output directory '{}': {}", output_dir, e);
             }
         }
-    });
 
-    let mut mgr = state.lock().unwrap();
-    mgr.downloads.insert(id, DownloadHandle { task, cancel_tx });
+        if Path::new(&filename).exists() {
+            if !Path::new(&txt_filename).exists() {
+                if let Err(e) = std::fs::remove_file(&filename) {
+                    println!(
+                        "Failed to remove incomplete video file '{}': {}",
+                        filename, e
+                    );
+                } else {
+                    println!(
+                        "Removed video file '{}' because file is corrupted.",
+                        filename
+                    );
+                }
+            } else {
+                let progress = DownloadProgress {
+                    video_id: video.video_id.clone(),
+                    status: VideoStatus::Completed,
+                    progress_size: None,
+                    is_init_request: None,
+                };
 
-    Ok(())
+                app.emit("download_progress", &progress).unwrap();
+                print!("{}. ", video.video_id);
+                return;
+            }
+        }
+
+        let progress = DownloadProgress {
+            video_id: video.video_id.clone(),
+            status: VideoStatus::Downloading,
+            progress_size: None,
+            is_init_request: None,
+        };
+        app.emit("download_progress", &progress).unwrap();
+        let mut chunk_size = 0;
+
+        let (tx, mut rx) = oneshot::channel::<()>();
+
+        let handle = tauri::async_runtime::spawn(async move {
+            let client = reqwest::Client::new();
+
+            match client.get(&video.play).send().await {
+                Ok(response) => {
+                    if let Ok(mut file) = File::create(Path::new(&filename)) {
+                        let mut stream = response.bytes_stream();
+
+                        while let Some(chunk) = stream.next().await {
+                            match chunk {
+                                Ok(bytes) => {
+                                    chunk_size += bytes.len();
+                                    let progress = DownloadProgress {
+                                        video_id: video.video_id.clone(),
+                                        status: VideoStatus::Downloading,
+                                        progress_size: Some(chunk_size),
+                                        is_init_request: None,
+                                    };
+
+                                    app.emit("download_progress", &progress).unwrap();
+
+                                    if let Err(e) = file.write_all(&bytes) {
+                                        println!("❌ Write error for {}: {}", filename, e);
+                                        return;
+                                    }
+                                }
+                                Err(e) => {
+                                    println!("❌ Failed: {}: {}", filename, e);
+                                    return;
+                                }
+                            }
+                        }
+
+                        // Write the title to a .txt file after successful download
+                        match File::create(Path::new(&txt_filename)) {
+                            Ok(mut txt_file) => {
+                                if let Err(e) = txt_file.write_all(video.title.as_bytes()) {
+                                    println!(
+                                        "❌ Failed to write title file {}: {}",
+                                        txt_filename, e
+                                    );
+                                }
+                            }
+                            Err(e) => {
+                                println!("❌ Failed to create title file {}: {}", txt_filename, e);
+                            }
+                        }
+                        let progress = DownloadProgress {
+                            video_id: video.video_id.clone(),
+                            status: VideoStatus::Completed,
+                            progress_size: Some(chunk_size),
+                            is_init_request: None,
+                        };
+
+                        app.emit("download_progress", &progress).unwrap();
+                        println!("{} download complete ✅", filename);
+                    } else {
+                        println!("❌ Failed to create file: {}", filename);
+                    }
+                }
+                Err(e) => {
+                    let _ = app.emit("download-error", format!("Request error {video_id}: {e}"));
+                }
+            }
+        });
+
+        self.tasks
+            .insert(_video_id, DownloadTask { handle, cancel: tx });
+    }
+
+    fn cancel_download(&mut self, id: &DownloadId) {
+        if let Some(task) = self.tasks.remove(id) {
+            let _ = task.cancel.send(()); // trigger cancellation
+        }
+    }
 }
 
 #[tauri::command]
-pub async fn cancel_download_one(
-    id: String,
-    state: tauri::State<'_, Arc<Mutex<DownloadManager>>>,
-) -> Result<(), String> {
-    let mut mgr = state.lock().unwrap();
-    if let Some(handle) = mgr.downloads.remove(&id) {
-        let _ = handle.cancel_tx.send(()); // signal cancel
-    }
-    Ok(())
+pub fn start_download_one(
+    video: Video,
+    main_path: String,
+    app: tauri::AppHandle,
+    state: tauri::State<Arc<Mutex<DownloadManager>>>,
+) {
+    state.lock().unwrap().start_download(video, main_path, app);
+}
+
+#[tauri::command]
+pub fn cancel_download_one(id: String, state: tauri::State<Arc<Mutex<DownloadManager>>>) {
+    state.lock().unwrap().cancel_download(&id);
 }

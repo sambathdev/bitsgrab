@@ -75,7 +75,6 @@ pub async fn extract_youtube(
             return Ok(data_as_serd);
         }
         Err(e) => {
-            //
             return Ok(vec![]);
         }
     }

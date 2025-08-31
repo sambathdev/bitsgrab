@@ -1,6 +1,5 @@
 import * as React from "react";
-import { BookOpen, Bot, Settings2, SquareTerminal } from "lucide-react";
-
+import { Settings2, SquareTerminal } from "lucide-react";
 import { NavMain } from "./nav-main";
 import {
   Sidebar,
@@ -12,10 +11,9 @@ import {
 } from "@/components/ui/sidebar";
 import { LocaleSwitch } from "@/components/locale-switch";
 import { ThemeSwitch } from "@/components/theme-switch";
-import { Link } from "react-router-dom";
-import { handleClickDisableNewTab } from "@/lib/utils";
-import { useDownloaderStore, useSavePathStore } from "@/stores";
 import { useLayoutSize } from "@/hooks";
+import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
 
 // const teams = [
 //   {
@@ -162,8 +160,21 @@ const navMain = [
 // ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { isDownloading } = useDownloaderStore();
+  const [isDownloading, setIsDownloading] = React.useState(false);
   const { layoutSize, setLayoutSize } = useLayoutSize();
+  const handleStopDownloadRef = React.useRef<any>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (event: any) => {
+      const { data } = (event as any).detail;
+      console.log("isDownloading", data);
+      setIsDownloading(data.isDownloading);
+      handleStopDownloadRef.current = data.handleStopDownload || null;
+    };
+    window.addEventListener("downloading", handleKeyDown);
+
+    return () => window.removeEventListener("downloading", handleKeyDown);
+  }, [setIsDownloading]);
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -180,11 +191,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenuButton>
       </SidebarHeader>
       <SidebarContent>
-        {isDownloading && (
-          <div>Is Downloading make this component, disable menus</div>
-        )}
         <NavMain items={navMain} />
         {/* <NavProjects projects={projects} /> */}
+        {isDownloading && (
+          <div className="w-full h-full bg-slate-100/80 absolute flex flex-col items-center justify-center opacity-0 hover:opacity-100">
+            <span className="text-shadow-2xs mb-2">Downloading...</span>
+            <Button
+              className="text-nowrap bg-red-600"
+              onClick={() => {
+                handleStopDownloadRef.current &&
+                  handleStopDownloadRef.current();
+              }}
+            >
+              Stop Download
+            </Button>
+          </div>
+        )}
       </SidebarContent>
       <SidebarFooter>
         {/* <NavUser user={user} /> */}

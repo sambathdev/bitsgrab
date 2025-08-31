@@ -37,6 +37,7 @@
     "@tauri-apps/plugin-clipboard-manager": "^2.3.0",
     "@tauri-apps/plugin-dialog": "^2.3.3",
     "@tauri-apps/plugin-opener": "^2",
+    "@tauri-apps/plugin-shell": "^2.3.1",
     "ai": "^5.0.8",
     "axios": "^1.11.0",
     "axios-auth-refresh": "^3.3.6",

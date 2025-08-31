@@ -26,6 +26,8 @@ pub mod app_state;
 use tauri::Manager;
 use std::sync::{Arc, Mutex};
 
+use tauri_plugin_shell::ShellExt;
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let initial_state = app_state::AppStateType::default();
@@ -37,6 +39,7 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_clipboard_manager::init()) 
+        .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
             greet,
             download_image,

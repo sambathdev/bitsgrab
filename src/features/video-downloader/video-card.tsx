@@ -3,11 +3,16 @@ import { filesize } from "filesize";
 import numeral from "numeral";
 import { LoadingBar } from "./loading-bar";
 import { useEffect, useState } from "react";
+import { open } from "@tauri-apps/plugin-shell";
+import { openPath } from "@tauri-apps/plugin-opener";
+import { useSavePathStore } from "@/stores";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  ArrowsClockwise,
+  Checks,
+  FolderOpen,
+  PlayCircle,
+} from "@phosphor-icons/react";
+import { useLayoutSize } from "@/hooks";
 
 interface VideoCardProps {
   video_id: any;
@@ -18,6 +23,7 @@ interface VideoCardProps {
   status: any;
   platform: any;
   cover: any;
+  folderPath?: any;
 }
 
 export function VideoCard({
@@ -29,13 +35,18 @@ export function VideoCard({
   status,
   platform,
   cover,
+  folderPath,
 }: VideoCardProps) {
+  const { mainPath, setMainPath } = useSavePathStore();
+  const { layoutSize } = useLayoutSize();
   const [progress, setProgress] = useState(0);
+
+  const iconSize = layoutSize == 'normal' ? 18: 15;
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null;
     if (status == VideoStatus.Downloading) {
-      if (platform == "tiktok") {
+      if (platform != "youtube") {
         intervalId = setInterval(() => {
           setProgress((prev) => {
             if (prev >= 90) {
@@ -80,31 +91,73 @@ export function VideoCard({
       {status == VideoStatus.Downloading && <LoadingBar progress={progress} />}
       <div className="flex items-center justify-start">
         {cover ? (
-          <img src={cover} alt="" className="w-[50px] object-cover max-h-[60px] min-w-[50px] mr-1" />
+          <img
+            src={cover}
+            alt=""
+            className="object-cover w-[30px] max-h-[30px] max-w-[30px] mr-1"
+          />
         ) : (
-          <div className="w-[50px] min-w-[50px] max-h-[60px] bg-amber-100 h-full mr-1" />
+          <div className="w-[30px] max-h-[30px] max-w-[30px] bg-amber-100 mr-1" />
         )}
         <div className="flex flex-col">
-          <span>Video ID: {video_id}</span>
-          <span className="line-clamp-1">Video Title: {title}</span>
-
-          {/* <span>
-          Video Size:{" "}
-          {platform == "youtube"
-            ? `${is_init_request ? "Initing Request" : "Unknown"}`
-            : fileSizeProgress}
-        </span> */}
+          <span className="text-sm">ID: {video_id}</span>
+          <span className="line-clamp-1 text-sm">Description: {title}</span>
         </div>
       </div>
-      <span className="flex flex-col justify-between min-w-[100px] items-end">
-        <span
-          className={`${
-            status == VideoStatus.Completed ? "text-green-600" : ""
-          }`}
-        >
-          {status}
-        </span>
-        <span className="text-xs text-nowrap">{numeral(play_count).format("0.00a").toUpperCase()} Views</span>
+      <span className="flex flex-col justify-between min-w-[150px] items-end">
+        <div className="flex items-center gap-2">
+          {folderPath && status == VideoStatus.Completed && (
+            <>
+              <button
+                className="hover:bg-slate-200 dark:hover:bg-slate-800 rounded-sm p-0.5"
+                onClick={async () => {
+                  try {
+                    console.log(`Attempting to open folder: ${folderPath}`);
+                    if (folderPath) await openPath(folderPath);
+                  } catch (e) {
+                    console.error("Failed to open folder:", e);
+                  }
+                }}
+              >
+                <FolderOpen className="text-foreground" size={iconSize} />
+              </button>
+              <button
+                className="hover:bg-slate-200 dark:hover:bg-slate-800 rounded-sm p-0.5"
+                onClick={async () => {
+                  try {
+                    console.log(`Attempting to open folder: ${folderPath}`);
+                    if (folderPath)
+                      await openPath(`${folderPath}/${video_id}.mp4`);
+                  } catch (e) {
+                    console.error("Failed to open folder:", e);
+                  }
+                }}
+              >
+                <PlayCircle className="text-foreground" size={iconSize} />
+              </button>
+            </>
+          )}
+        </div>
+        <div className="flex items-end gap-1">
+          <span className="text-[10px] text-nowrap">
+            {play_count
+              ? `${numeral(play_count).format("0.00a").toUpperCase()} Views`
+              : ""}
+          </span>
+          <span
+            className={`${
+              status == VideoStatus.Completed ? "text-green-600" : ""
+            }`}
+          >
+            {status == VideoStatus.Completed && <Checks size={iconSize} />}
+            {status == VideoStatus.Downloading && (
+              <ArrowsClockwise
+                className="animate-spin duration-1000"
+                size={iconSize}
+              />
+            )}
+          </span>
+        </div>
       </span>
     </div>
   );

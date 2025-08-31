@@ -22,6 +22,8 @@ pub struct Video {
     pub play: String,
     pub title: String,
     pub cover: Option<String>,
+    pub platform: Option<String>,
+    pub username: Option<String>,
     #[serde(alias = "thumbnails")]
     pub cover_youtube: Option<Vec<YoutubeThumbnail>>,
     #[serde(alias = "view_count")]

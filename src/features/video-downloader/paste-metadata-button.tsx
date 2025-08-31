@@ -9,7 +9,7 @@ export const PasteMetaDataButton: React.FC<DropZoneProps> = ({ onTextPaste }) =>
   return (
     <div
       className={
-        "bg-amber-500 cursor-pointer flex items-center justify-center py-4"
+        "bg-amber-500 hover:bg-amber-400 cursor-pointer flex items-center justify-center py-4"
       }
       onClick={async () => {
         try {

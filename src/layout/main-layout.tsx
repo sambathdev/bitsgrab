@@ -78,9 +78,13 @@ const LayoutWrapper = () => {
             maxHeight: "calc(100vh - 28px)",
             maxWidth: isMobile
               ? "100vw"
+              : layoutSize == "normal"
+              ? state == "collapsed"
+                ? "calc(100vw - 48px)"
+                : "calc(100vw - 256px)"
               : state == "collapsed"
-              ? "calc(100vw - 48px)"
-              : "calc(100vw - 256px)",
+              ? "calc(100vw - 36px)"
+              : "calc(100vw - 192px)",
           }}
         >
           <Outlet />

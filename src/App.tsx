@@ -1,15 +1,17 @@
 import "./index.css";
-import MainLayout from "./layout/main-layout";
-import { Routes, Route, BrowserRouter } from "react-router-dom";
-import Home from "./pages/home-dashboard";
-import Settings from "./pages/app-settings/page";
-import ClipboardApp from "./pages/child/clipboard-app/page";
-import { Providers } from "./providers";
-import ChildLayout from "./layout/child-layout";
 import AppRouter from "./router";
+import { useHeartbeat } from "./hooks/use-heatbeat-online";
 
 function App() {
-  return <AppRouter />;
+  const isOnline = useHeartbeat("https://raw.githubusercontent.com/microsoft/vscode/refs/heads/main/.editorconfig", 10000);
+  return (
+    <>
+      {!isOnline && (
+        <div className="w-screen animate-pulse h-8 bg-red-400 fixed flex items-center justify-center top-[50%]" style={{zIndex: 9999}}>You are offline</div>
+      )}
+      <AppRouter />
+    </>
+  );
 }
 
 export default App;
