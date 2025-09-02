@@ -16,8 +16,8 @@ pub fn start_clipboard_listener(app: AppHandle, _window: Window) {
 
         loop {
             if let Ok(current) = ctx.get_contents() {
-                println!("Current clip board data: {}", current);
-                app.emit("current-clipboard", String::from("Hell")).unwrap();
+                // println!("Current clip board data:");
+                app.emit("current-clipboard", current.clone()).unwrap();
                 // match window
                 //     .emit("current-clipboard", current.clone())
                 //     .map_err(|e| e.to_string())
@@ -32,7 +32,7 @@ pub fn start_clipboard_listener(app: AppHandle, _window: Window) {
                     last_clip = current;
                 }
             }
-            tokio::time::sleep(Duration::from_millis(500)).await;
+            tokio::time::sleep(Duration::from_millis(1500)).await;
         }
     });
 }

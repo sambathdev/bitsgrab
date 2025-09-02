@@ -18,6 +18,8 @@ import {
 } from "@/hooks";
 import { shortcutRegistry } from "@/lib/shortcuts";
 import { HotKeyMapper } from "./hotkey-mapper";
+import { useRef } from "react";
+import { invoke } from "@tauri-apps/api/core";
 
 const MainLayout = () => {
   return (
@@ -28,12 +30,26 @@ const MainLayout = () => {
 };
 
 const LayoutWrapper = () => {
+  const runOnce = useRef(false);
   const { state, isMobile } = useSidebar();
   const { layoutSize } = useLayoutSize();
   useSidebarShortcut();
   useThemeShortcut();
   useToastShortcut();
   useShortcut();
+
+  if (!runOnce.current) {
+    try {
+      const gg = async () => {
+        await invoke("start_clipboard_listener");
+        console.log('Keyboard listen.')
+      };
+      gg();
+    } catch (e) {
+      console.error("Listen failed:", e);
+    }
+    runOnce.current = true;
+  }
 
   const shortcuts = shortcutRegistry.getShortcuts();
   const location = useLocation();

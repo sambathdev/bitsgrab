@@ -451,7 +451,9 @@ impl DownloadManager {
         }
 
         if Path::new(&filename).exists() {
+            println!("File exist");
             if !Path::new(&txt_filename).exists() {
+                println!("txt not exist");
                 if let Err(e) = std::fs::remove_file(&filename) {
                     println!(
                         "Failed to remove incomplete video file '{}': {}",
@@ -464,6 +466,7 @@ impl DownloadManager {
                     );
                 }
             } else {
+                println!("txt exist");
                 let progress = DownloadProgress {
                     video_id: video.video_id.clone(),
                     status: VideoStatus::Completed,

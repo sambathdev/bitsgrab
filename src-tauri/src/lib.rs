@@ -41,9 +41,9 @@ pub fn run() {
         .plugin(tauri_plugin_clipboard_manager::init()) 
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
+            start_clipboard_listener,
             greet,
             download_image,
-            start_clipboard_listener,
             enable_click_through,
             disable_click_through,
             get_youtube_video_meta_datas,
