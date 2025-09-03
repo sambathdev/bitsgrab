@@ -7,6 +7,7 @@ use futures::stream::{FuturesUnordered, StreamExt};
 use futures::FutureExt; // for .fuse()
 use reqwest::Client;
 use std::process::Stdio;
+use std::thread;
 use std::{fs::File, io::Write, path::Path, sync::Arc};
 use tauri::{AppHandle, Emitter, Manager};
 use tokio::io::{AsyncBufReadExt, BufReader};
@@ -134,7 +135,6 @@ impl Downloader {
                     video_id: video.video_id.clone(),
                     status: VideoStatus::Completed,
                     progress_size: None,
-                    is_init_request: None,
                 };
 
                 app.emit("download_progress", &progress).unwrap();
@@ -147,7 +147,6 @@ impl Downloader {
             video_id: video.video_id.clone(),
             status: VideoStatus::Downloading,
             progress_size: None,
-            is_init_request: None,
         };
 
         app.emit("download_progress", &progress).unwrap();
@@ -165,7 +164,6 @@ impl Downloader {
                                     video_id: video.video_id.clone(),
                                     status: VideoStatus::Downloading,
                                     progress_size: Some(chunk_size),
-                                    is_init_request: None,
                                 };
 
                                 app.emit("download_progress", &progress).unwrap();
@@ -177,7 +175,6 @@ impl Downloader {
                                             video_id: video.video_id.clone(),
                                             status: VideoStatus::Idle,
                                             progress_size: Some(chunk_size),
-                                            is_init_request: None,
                                         };
 
                                         app.emit("download_progress", &progress).unwrap();
@@ -212,7 +209,6 @@ impl Downloader {
                         video_id: video.video_id.clone(),
                         status: VideoStatus::Completed,
                         progress_size: Some(chunk_size),
-                        is_init_request: None,
                     };
 
                     app.emit("download_progress", &progress).unwrap();
@@ -261,7 +257,6 @@ impl Downloader {
                     video_id: video.video_id.clone(),
                     status: VideoStatus::Completed,
                     progress_size: None,
-                    is_init_request: None,
                 };
 
                 app.emit("download_progress", &progress).unwrap();
@@ -274,17 +269,18 @@ impl Downloader {
             video_id: video.video_id.clone(),
             status: VideoStatus::Downloading,
             progress_size: None,
-            is_init_request: Some(true),
         };
 
         app.emit("download_progress", &progress).unwrap();
         // youtube download here
-
+        // yt-dlp -f bestvideo+bestaudio --merge-output-format mp4 "YOUTUBE_VIDEO_URL"
         let mut _child = Command::new("./libs/yt-dlp")
             .arg(video.play.clone())
             .arg("-o")
             .arg(format!("{}", filename))
             .arg("-f")
+            .arg("bestvideo+bestaudio")
+            .arg("--merge-output-format")
             .arg("mp4")
             .arg("--ffmpeg-location")
             .arg("./libs/ffmpeg")
@@ -307,7 +303,6 @@ impl Downloader {
             //                 video_id: video.video_id.clone(),
             //                 status: VideoStatus::Downloading,
             //                 progress_size: Some(2),
-            //                 is_init_request: Some(false),
             //             };
             //             app.emit("download_progress", &progress).unwrap();
             //         }
@@ -329,8 +324,7 @@ impl Downloader {
                     let progress = DownloadProgress {
                         video_id: video.video_id.clone(),
                         status: VideoStatus::Idle,
-                        progress_size: Some(2),
-                        is_init_request: None,
+                        progress_size: Some(0),
                     };
 
                     app.emit("download_progress", &progress).unwrap();
@@ -357,8 +351,7 @@ impl Downloader {
         let progress = DownloadProgress {
             video_id: video.video_id.clone(),
             status: VideoStatus::Completed,
-            progress_size: Some(2), // will get from stdout
-            is_init_request: None,
+            progress_size: Some(0),
         };
 
         app.emit("download_progress", &progress).unwrap();
@@ -471,7 +464,6 @@ impl DownloadManager {
                     video_id: video.video_id.clone(),
                     status: VideoStatus::Completed,
                     progress_size: None,
-                    is_init_request: None,
                 };
 
                 app.emit("download_progress", &progress).unwrap();
@@ -484,7 +476,6 @@ impl DownloadManager {
             video_id: video.video_id.clone(),
             status: VideoStatus::Downloading,
             progress_size: None,
-            is_init_request: None,
         };
         app.emit("download_progress", &progress).unwrap();
         let mut chunk_size = 0;
@@ -507,7 +498,6 @@ impl DownloadManager {
                                         video_id: video.video_id.clone(),
                                         status: VideoStatus::Downloading,
                                         progress_size: Some(chunk_size),
-                                        is_init_request: None,
                                     };
 
                                     app.emit("download_progress", &progress).unwrap();
@@ -542,7 +532,6 @@ impl DownloadManager {
                             video_id: video.video_id.clone(),
                             status: VideoStatus::Completed,
                             progress_size: Some(chunk_size),
-                            is_init_request: None,
                         };
 
                         app.emit("download_progress", &progress).unwrap();
@@ -561,9 +550,24 @@ impl DownloadManager {
             .insert(_video_id, DownloadTask { handle, cancel: tx });
     }
 
-    fn cancel_download(&mut self, id: &DownloadId) {
+    fn cancel_download(&mut self, id: &DownloadId, app: AppHandle) {
         if let Some(task) = self.tasks.remove(id) {
             let _ = task.cancel.send(()); // trigger cancellation
+            task.handle.abort();
+
+            let progress = DownloadProgress {
+                video_id: id.to_string(),
+                status: VideoStatus::Failed,
+                progress_size: Some(0),
+            };
+            app.emit("download_progress", &progress).unwrap();
+            thread::sleep(Duration::from_secs(2));
+            let progress = DownloadProgress {
+                video_id: id.to_string(),
+                status: VideoStatus::Failed,
+                progress_size: Some(0),
+            };
+            app.emit("download_progress", &progress).unwrap();
         }
     }
 }
@@ -579,6 +583,11 @@ pub fn start_download_one(
 }
 
 #[tauri::command]
-pub fn cancel_download_one(id: String, state: tauri::State<Arc<Mutex<DownloadManager>>>) {
-    state.lock().unwrap().cancel_download(&id);
+pub fn cancel_download_one(
+    id: String,
+    state: tauri::State<Arc<Mutex<DownloadManager>>>,
+    app: tauri::AppHandle,
+) {
+    println!("❌ cancel file: {}", id);
+    state.lock().unwrap().cancel_download(&id, app);
 }

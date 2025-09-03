@@ -20,13 +20,13 @@ pub mod video_list_extracting;
 use crate::video_list_extracting::{extract_tiktok, extract_youtube};
 
 pub mod downloader;
-use crate::downloader::{cancel_download, process_download, start_download_one, cancel_download_one, DownloadManager};
+use crate::downloader::{
+    cancel_download, cancel_download_one, process_download, start_download_one, DownloadManager,
+};
+use tauri::Manager;
 
 pub mod app_state;
-use tauri::Manager;
 use std::sync::{Arc, Mutex};
-
-use tauri_plugin_shell::ShellExt;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -34,11 +34,11 @@ pub fn run() {
 
     tauri::Builder::default()
         .manage(initial_state)
-        .manage(Arc::new(Mutex::new(DownloadManager::new()))) 
+        .manage(Arc::new(Mutex::new(DownloadManager::new())))
         .setup(|_app| Ok(()))
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
-        .plugin(tauri_plugin_clipboard_manager::init()) 
+        .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
             start_clipboard_listener,

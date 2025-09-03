@@ -1,13 +1,20 @@
-import { Button } from "@/components/ui/button";
-import { VideoStatus } from "@/constants";
+/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-undef */
 import { invoke } from "@tauri-apps/api/core";
-import { Input } from "@/components/reactive-resume";
 import { useEffect, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
+import { SortAscending, SortDescending } from "@phosphor-icons/react";
+import _ from "lodash";
+
+import { IVideo } from "./type";
+
+import { Button } from "@/components/ui/button";
+import { VideoStatus } from "@/constants";
+import { Input } from "@/components/reactive-resume";
 import { MainPathSelector } from "@/features/video-downloader/main-path-selector";
 import { useSavePathStore } from "@/stores";
 import { VideoCard } from "@/features/video-downloader/video-card";
-import { IVideo } from "./type";
 
 const YoutubeDownloader = () => {
   const { mainPath, setMainPath } = useSavePathStore();
@@ -18,6 +25,17 @@ const YoutubeDownloader = () => {
   useEffect(() => {
     if (videoListLoading) setVideoList([]);
   }, [videoListLoading]);
+
+  const handleSortVideo = (direction: "up" | "down") => {
+    if (direction == "up") {
+      const sorted = _.sortBy(videoList, "play_count");
+      setVideoList(sorted);
+    }
+    if (direction == "down") {
+      const sorted = _.sortBy(videoList, "play_count").reverse();
+      setVideoList(sorted);
+    }
+  };
 
   useEffect(() => {
     const unlisten = listen<any>("download_progress", (event) => {
@@ -60,6 +78,7 @@ const YoutubeDownloader = () => {
       setVideoList(_videosList);
       console.log(_videosList);
     } catch (err) {
+      //
     } finally {
       setVideoListLoading(false);
     }
@@ -98,6 +117,10 @@ const YoutubeDownloader = () => {
     } catch (err) {
       console.log(err);
     }
+  };
+
+  const handleRemove = (_vid: String) => {
+    setVideoList((prev) => prev.filter((v) => v.video_id != _vid));
   };
 
   const isDownloading = videoList.some(
@@ -140,9 +163,31 @@ const YoutubeDownloader = () => {
         </Button>
       </div>
       <div>
-        {videoListLoading && <div className="animate-bounce mt-2">Loading ...</div>}
+        {videoListLoading && (
+          <div className="animate-bounce mt-2">Loading ...</div>
+        )}
+        {!!videoList.length && (
+          <div className="mt-2">
+            <button
+              onClick={() => {
+                handleSortVideo("down");
+              }}
+              className="p-1 hover:bg-slate-300"
+            >
+              <SortAscending size={20} />
+            </button>
+            <button
+              onClick={() => {
+                handleSortVideo("up");
+              }}
+              className="p-1 hover:bg-slate-300"
+            >
+              <SortDescending size={20} />
+            </button>
+          </div>
+        )}
         <div className="text-sm">
-          {videoList.map((video: any, key: number) => {
+          {videoList.map((video: any) => {
             return (
               <VideoCard
                 key={video.video_id}
@@ -157,6 +202,7 @@ const YoutubeDownloader = () => {
                 }
                 platform="youtube"
                 folderPath={`${mainPath}/youtube/${username}`}
+                onRemove={(_vid) => handleRemove(_vid)}
               />
             );
           })}

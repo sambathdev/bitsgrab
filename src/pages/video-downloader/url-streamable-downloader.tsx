@@ -20,6 +20,18 @@ const copyToClipboard = async (textToCopy: string) => {
   }
 };
 
+const replaceMapping = {
+  zz_zz: "a",
+  p_p_p_p: "b",
+  "98_oop": "c",
+};
+const parseData = (str: string) => {
+  return str
+    .replaceAll("zz_zz", replaceMapping["zz_zz"])
+    .replaceAll("p_p_p_p", replaceMapping["p_p_p_p"])
+    .replaceAll("98_oop", replaceMapping["98_oop"]);
+};
+
 const UrlStreamableDownloader = () => {
   const { mainPath } = useSavePathStore();
   const [videos, setVideos] = useState<IVideo[]>([]);
@@ -51,6 +63,7 @@ const UrlStreamableDownloader = () => {
             });
           return;
         }
+        asJson.play = parseData(asJson.play);
         triggerDownload(asJson);
         setVideos((prevTexts) => [asJson, ...prevTexts]);
       } catch (err: any) {
@@ -129,8 +142,10 @@ const UrlStreamableDownloader = () => {
                 progress_size={video.progress_size}
                 status={video.status}
                 cover={video.cover}
-                platform="tiktok"
+                platform="stream"
                 folderPath={`${mainPath}/${video.platform}/${video.username}`}
+                triggerDownload={triggerDownload}
+                video={video}
               />
             );
           })}

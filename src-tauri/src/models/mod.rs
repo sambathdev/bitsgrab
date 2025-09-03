@@ -53,5 +53,4 @@ pub struct DownloadProgress {
     pub video_id: String,
     pub status: VideoStatus,
     pub progress_size: Option<usize>,
-    pub is_init_request: Option<bool>,
 }
