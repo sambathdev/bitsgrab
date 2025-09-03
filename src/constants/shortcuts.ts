@@ -12,11 +12,8 @@ export interface ShortcutDefinition {
 }
 
 export const SHORTCUT_KEYS = {
-  OPEN_SETTINGS: "meta+s",
-  OPEN_CLIPBOARD: "meta+m", 
-  OPEN_SIDEBAR: "meta+t",
+  OPEN_SIDEBAR: "meta+shift+b",
   TOGGLE_THEME: "meta+shift+t",
-  SHOW_TOAST: "meta+shift+o",
 } as const;
 
 export type ShortcutKey = keyof typeof SHORTCUT_KEYS;

@@ -23,10 +23,29 @@ pub mod downloader;
 use crate::downloader::{
     cancel_download, cancel_download_one, process_download, start_download_one, DownloadManager,
 };
+use reqwest::Client;
 use tauri::Manager;
 
 pub mod app_state;
 use std::sync::{Arc, Mutex};
+
+#[tauri::command]
+async fn get_api_time() -> Result<Option<String>, String> {
+    let client = Client::new();
+    let res = client
+        .get("https://raw.githubusercontent.com/microsoft/vscode/refs/heads/main/.editorconfig")
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+
+    // Try to get the "date" header
+    let date_header = res
+        .headers()
+        .get("date")
+        .map(|h| h.to_str().unwrap_or("").to_string());
+
+    Ok(date_header)
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -52,7 +71,8 @@ pub fn run() {
             process_download,
             cancel_download,
             start_download_one,
-            cancel_download_one
+            cancel_download_one,
+            get_api_time
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, VariantProps } from "class-variance-authority";
@@ -519,7 +520,7 @@ function SidebarMenuButton({
       {...props}
     />
   );
-  console.log(888, tooltip);
+
   if (!tooltip) {
     return button;
   }

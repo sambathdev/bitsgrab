@@ -1,3 +1,4 @@
+/* eslint-disable import/order */
 import { useEffect, useRef } from "react";
 import { useSidebar } from "@/components/ui/sidebar";
 import { useComponentShortcut } from "./use-component-shortcut";

@@ -1,3 +1,6 @@
+/* eslint-disable import/order */
+/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
 import { Settings2, SquareTerminal } from "lucide-react";
 import { NavMain } from "./nav-main";
@@ -55,7 +58,7 @@ const navMain = [
         url: "/main/video-downloader/youtube",
       },
       {
-        title: "Url Streamable",
+        title: "Single Video",
         url: "/main/video-downloader/url-streamable",
       },
     ],
@@ -103,16 +106,16 @@ const navMain = [
   //   ],
   // },
 
-  {
-    title: "Encryption",
-    url: "/main/encryption",
-    icon: FingerprintSimple,
-  },
-  {
-    title: "Frame Capture",
-    url: "/main/frame-capture",
-    icon: FrameCorners,
-  },
+  // {
+  //   title: "Encryption",
+  //   url: "/main/encryption",
+  //   icon: FingerprintSimple,
+  // },
+  // {
+  //   title: "Frame Capture",
+  //   url: "/main/frame-capture",
+  //   icon: FrameCorners,
+  // },
   {
     title: "Settings",
     url: "/main/settings",

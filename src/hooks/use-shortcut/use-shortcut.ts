@@ -1,3 +1,4 @@
+/* eslint-disable import/order */
 import { useEffect, useRef } from "react";
 import { initializeShortcuts } from "@/lib/shortcuts/config";
 

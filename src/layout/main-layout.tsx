@@ -56,7 +56,7 @@ const LayoutWrapper = () => {
   const locationMapToTitle = {
     "/main/video-downloader/tiktok": "Tiktok Downloader",
     "/main/video-downloader/youtube": "Youtube Downloader",
-    "/main/video-downloader/url-streamable": "Url Streamable Downloader",
+    "/main/video-downloader/url-streamable": "Single Video Downloader",
   };
   const title = (locationMapToTitle as any)[location.pathname];
   return (

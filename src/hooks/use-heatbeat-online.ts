@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 
 export function useHeartbeat(url: string, intervalMs: number = 5000) {
   const [isOnline, setIsOnline] = useState<boolean>(true);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<any>(null);
 
   useEffect(() => {
     const checkConnection = async () => {
