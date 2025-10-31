@@ -1,4 +1,9 @@
 import { Outlet, useLocation } from "react-router-dom";
+import { useRef } from "react";
+import { invoke } from "@tauri-apps/api/core";
+
+import { AppSidebar } from "./parts/app-sidebar";
+import { HotKeyMapper } from "./hotkey-mapper";
 
 import {
   SidebarInset,
@@ -7,7 +12,6 @@ import {
   useSidebar,
   // useSidebar,
 } from "@/components/ui/sidebar";
-import { AppSidebar } from "./parts/app-sidebar";
 // import { WindowDragger } from "./parts/window-dragger";
 import {
   useLayoutSize,
@@ -17,9 +21,6 @@ import {
   useToastShortcut,
 } from "@/hooks";
 import { shortcutRegistry } from "@/lib/shortcuts";
-import { HotKeyMapper } from "./hotkey-mapper";
-import { useRef } from "react";
-import { invoke } from "@tauri-apps/api/core";
 
 const MainLayout = () => {
   return (

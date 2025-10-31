@@ -17,8 +17,17 @@ import { LocaleSwitch } from "@/components/locale-switch";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { useLayoutSize } from "@/hooks";
 import { useEffect } from "react";
-import { FingerprintSimple, FrameCorners, House, HouseLine, MonitorPlay, Resize } from "@phosphor-icons/react";
+import {
+  FingerprintSimple,
+  FrameCorners,
+  House,
+  HouseLine,
+  MonitorPlay,
+  Resize,
+} from "@phosphor-icons/react";
 import { Button } from "@/components/reactive-resume";
+import EmailAuth from "@/components/email-auth";
+import { toast } from "sonner";
 
 // const teams = [
 //   {
@@ -167,6 +176,7 @@ const navMain = [
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [isDownloading, setIsDownloading] = React.useState(false);
+  const [isCannotUse, setIsCannotUse] = React.useState(true);
   const { layoutSize, setLayoutSize } = useLayoutSize();
   const { state, isMobile } = useSidebar();
   const handleStopDownloadRef = React.useRef<any>(null);
@@ -182,6 +192,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
     return () => window.removeEventListener("downloading", handleKeyDown);
   }, [setIsDownloading]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: any) => {
+      toast.success("Use able");
+      setIsCannotUse(false);
+    };
+    window.addEventListener("unlock", handleKeyDown);
+
+    return () => window.removeEventListener("unlock", handleKeyDown);
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (event: any) => {
+      setIsCannotUse(true);
+    };
+    window.addEventListener("lock", handleKeyDown);
+
+    return () => window.removeEventListener("lock", handleKeyDown);
+  }, []);
+
   const iconSize = layoutSize == "compact" ? 15 : 18;
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -218,23 +248,32 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             )}
           </div>
         )}
+        {isCannotUse && (
+          <div className="w-full h-full bg-background absolute flex flex-col items-center justify-center"></div>
+        )}
       </SidebarContent>
       <SidebarFooter>
         {/* <NavUser user={user} /> */}
+
+        <div className={`${state == "expanded" ? "" : "hidden"} z-50`}>
+          <EmailAuth />
+        </div>
         {state == "expanded" && (
-          <div className="flex items-center">
-            <LocaleSwitch iconSize={iconSize} />
-            <ThemeSwitch size={iconSize} />
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={() => {
-                setLayoutSize(layoutSize == "compact" ? "normal" : "compact");
-              }}
-            >
-              <Resize size={iconSize} />
-            </Button>
-          </div>
+          <>
+            <div className="flex items-center">
+              <LocaleSwitch iconSize={iconSize} />
+              <ThemeSwitch size={iconSize} />
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => {
+                  setLayoutSize(layoutSize == "compact" ? "normal" : "compact");
+                }}
+              >
+                <Resize size={iconSize} />
+              </Button>
+            </div>
+          </>
         )}
       </SidebarFooter>
       <SidebarRail />

@@ -47,6 +47,13 @@ async fn get_api_time() -> Result<Option<String>, String> {
     Ok(date_header)
 }
 
+#[tauri::command]
+async fn get_machine_uid() -> Result<String, String> {
+    let uid = machine_uid::get().unwrap();
+    println!("Device ID: {}", uid);
+    Ok(uid)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let initial_state = app_state::AppStateType::default();
@@ -72,7 +79,8 @@ pub fn run() {
             cancel_download,
             start_download_one,
             cancel_download_one,
-            get_api_time
+            get_api_time,
+            get_machine_uid
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

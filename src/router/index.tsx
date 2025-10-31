@@ -1,16 +1,11 @@
-import {
-  BrowserRouter,
-  createBrowserRouter,
-  createRoutesFromElements,
-  Navigate,
-  Route,
-  Routes,
-} from "react-router";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 
 import { Providers } from "../providers";
+
 import { AuthGuard } from "./guards/auth";
 import { GuestGuard } from "./guards/guest";
 import { authLoader } from "./loaders/auth";
+
 import MainLayout from "@/layout/main-layout";
 import Home from "@/pages/home-dashboard";
 import Settings from "@/pages/app-settings/page";
@@ -29,9 +24,18 @@ function AppRouter() {
         <Route path="/" element={<Providers />}>
           <Route path="main" element={<MainLayout />}>
             <Route index element={<Home />} />
-            <Route path="video-downloader/youtube" element={<YoutubeDownloader />} />
-            <Route path="video-downloader/tiktok" element={<TiktokDownloader />} />
-            <Route path="video-downloader/url-streamable" element={<UrlStreamableDownloader />} />
+            <Route
+              path="video-downloader/youtube"
+              element={<YoutubeDownloader />}
+            />
+            <Route
+              path="video-downloader/tiktok"
+              element={<TiktokDownloader />}
+            />
+            <Route
+              path="video-downloader/url-streamable"
+              element={<UrlStreamableDownloader />}
+            />
             <Route path="settings" element={<Settings />} />
             <Route path="encryption" element={<Encryption />} />
             <Route path="frame-capture" element={<FrameCapture />} />
@@ -84,4 +88,3 @@ function AppRouter() {
 }
 
 export default AppRouter;
-
